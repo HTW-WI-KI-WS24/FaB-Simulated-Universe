@@ -7,3 +7,4 @@ docker-compose up --build -d
 #       - Scraping of Hero Data and Stories from http://fabtcg.com/heroes
 #       and http://fabtcg.com/stories
 #       - Change Creation Process in persona-creation.py based on those
+#       - Environment Variables for Data Security
