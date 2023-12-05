@@ -40,7 +40,8 @@ def getWritingStyle():
                              "in their past.")
     return render_template("writing_style.html")
 
-
+# TODO: Change Creation Process based on Hero Data and Stories from http://fabtcg.com/heroes
+#       and http://fabtcg.com/stories
 @app.route("/generateQuestions", methods=["POST"])
 def generateQuestions():
     global personaStories
