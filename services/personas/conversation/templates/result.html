@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Viewport meta tag -->
+    <title>Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 80%; /* Adjust the width as needed */
+            max-width: 500px; /* Set a max-width for larger screens */
+            overflow: visible;
+        }
+        .message-box {
+            background-color: #e7f3fe; /* Light blue background for messages */
+            border-left: 4px solid #2196F3; /* Blue border on the left for highlighting */
+            padding: 10px;
+            margin: 0 auto; /* Centers the box horizontally */
+            text-align: left;
+            box-sizing: border-box;
+            width: calc(100% - 40px); /* Full width within the container */
+            overflow: auto;
+        }
+        /* Add any other styles you need for buttons or inputs */
+    </style>
+</head>
+<body>
+<div class="container">
+    <form action="" method="post">
+        {% for message in get_flashed_messages() %}
+        <div class="message-box">
+            {{ message|replace('\n', '</p><p>')|safe }}
+        </div>
+        {% endfor %}
+        <!-- Add forms inputs or buttons here as needed -->
+    </form>
+</div>
+</body>
+</html>

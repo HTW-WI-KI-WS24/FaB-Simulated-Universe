@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Viewport meta tag -->
+    <title>User Introduction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            align-self: center;
+            width: 80%; /* Adjust the width as needed */
+            max-width: 500px; /* Set a max-width for larger screens */
+            overflow: visible;
+        }
+        .message-box {
+            background-color: #e7f3fe; /* Light blue background for messages */
+            border-left: 4px solid #2196F3; /* Blue border on the left for highlighting */
+            padding: 10px;
+            margin: 0 auto; /* Centers the box horizontally */
+            text-align: left;
+            box-sizing: border-box;
+            width: calc(100% - 40px); /* Full width within the container */
+            overflow: auto;
+        }
+        input[type="text"], input[type="submit"] {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: calc(100% - 20px); /* Ensures the input and button take full width */
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: calc(100% - 20px); /* Adjust width as necessary, minus padding */
+            resize: vertical; /* Allows the user to resize the textarea vertically */
+            font-family: Arial, sans-serif; /* To match the font style of the other inputs */
+            font-size: 1rem; /* Standard font size for text inputs */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <form action="getWritingStyle" method="post">
+        {% for message in get_flashed_messages() %}
+        <div class="message-box">
+            {{ message|replace('\n', '</p><p>')|safe }}
+        </div>
+        {% endfor %}
+        <br>
+        <textarea name="user_input" id="user_input" rows="4" cols="50"></textarea>
+        <input type="submit" value="SEND" id="send">
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+
+  persona-creation:
+    build:
+      context: services/personas/creation
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+    depends_on:
+      - mysql
+
+  persona-persistence:
+    build:
+      context: services/personas/persistence
+    ports:
+      - "5001:5001"
+    networks:
+      - backend
+    depends_on:
+      - mysql
+
+  persona-conversation:
+    build:
+      context: services/personas/conversation
+    ports:
+      - "5002:5002"
+    networks:
+      - backend
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:latest
+    container_name: local-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: microdata
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend
+
+volumes:
+  mysql-data:
+
+networks:
+  backend:
