@@ -2,7 +2,8 @@
 
 docker-compose up --build -d
 
-#TODO:  - Frontend Styling (Global Variables and CSS)
+#TODO:  
+#       - Frontend Styling (Global Variables and CSS)
 #       - Vector Database Implementation
 #       - Scraping of Hero Data and Stories from http://fabtcg.com/heroes
 #       and http://fabtcg.com/stories
