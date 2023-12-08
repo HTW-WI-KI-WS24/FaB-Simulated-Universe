@@ -10,8 +10,8 @@ client = OpenAI(
 app = Flask(__name__)
 app.secret_key = "password123"
 
-url = 'http://persona-persistence:5001/getAllPersonas'
-getPersonaUrl = 'http://persona-persistence:5001/getPersona/'
+url = 'http://persona-persistence:8082/getAllPersonas'
+getPersonaUrl = 'http://persona-persistence:8082/getPersona/'
 personaList = []
 
 

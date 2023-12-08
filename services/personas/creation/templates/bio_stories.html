@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Viewport meta tag -->
-    <title>User Introduction</title>
+    <title>Bio Stories</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,7 +64,7 @@
 </head>
 <body>
 <div class="container">
-    <form action="getWritingStyle" method="post">
+    <form action="characterTraits" method="post">
         {% for message in get_flashed_messages() %}
         <div class="message-box">
             {{ message|replace('\n', '</p><p>')|safe }}

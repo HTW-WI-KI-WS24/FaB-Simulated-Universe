@@ -6,17 +6,7 @@ services:
     build:
       context: services/personas/creation
     ports:
-      - "5000:5000"
-    networks:
-      - backend
-    depends_on:
-      - mysql
-
-  persona-persistence:
-    build:
-      context: services/personas/persistence
-    ports:
-      - "5001:5001"
+      - "8080:8080"
     networks:
       - backend
     depends_on:
@@ -26,7 +16,17 @@ services:
     build:
       context: services/personas/conversation
     ports:
-      - "5002:5002"
+      - "8081:8081"
+    networks:
+      - backend
+    depends_on:
+      - mysql
+
+  persona-persistence:
+    build:
+      context: services/personas/persistence
+    ports:
+      - "8082:8082"
     networks:
       - backend
     depends_on:

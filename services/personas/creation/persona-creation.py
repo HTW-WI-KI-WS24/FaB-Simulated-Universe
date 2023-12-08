@@ -11,12 +11,12 @@ persona_introduction = ""
 persona_writing = ""
 name = ""
 messages = []
-url = 'http://persona-persistence:5001/createPersona'
+url = 'http://persona-persistence:8082/createPersona'
 
 
 @app.route("/")
 def index():
-    flash("What's the Personas name?")
+    flash("What's the Heros name?")
     return render_template("enter_name.html")
 
 
@@ -24,21 +24,26 @@ def index():
 def getIntroduction():
     global name
     name = request.form.get("user_input")
-    flash("Welcome, " + name + "! Please insert a paragraph about the hero (e.g. from their hero page) "
-                               "to describe their personality.")
-    return render_template("persona_introduction.html")
+    flash("Okay, let's create a Persona for " + name + ". Please insert a paragraph about the hero (e.g. from "
+                                                       "their hero page) to describe their character traits.")
+    return render_template("hero_introduction.html")
 
 
-@app.route("/getWritingStyle", methods=["POST"])
+@app.route("/addBiography", methods=["POST"])
 def getWritingStyle():
     global personaIntroduction
     personaIntroduction = request.form.get("user_input")
     flash(
-        "Persona: " + name + "\n Please enter 3 different texts to determine the personas personality and writing "
-                             "style. For example, "
-                             "talk about their day, their future plans, a hobby and why they like it, or an event "
-                             "in their past.")
-    return render_template("writing_style.html")
+        "Hero: " + name + "\n Please insert Stories from the Heros Lore Page here.")
+    return render_template("bio_stories.html")
+
+@app.route("/addTraits", methods=["POST"])
+def generateDepth():
+    messages.append({"role": "user", "content": request.form.get("user_input")})
+    print(messages)
+    assistant_reply = generate_depth(client, messages)
+    flash("Persona: " + name + "\n" + assistant_reply)
+    return render_template("character_traits.html")
 
 # TODO: Change Creation Process based on Hero Data and Stories from http://fabtcg.com/heroes
 #       and http://fabtcg.com/stories
@@ -56,21 +61,14 @@ def generateQuestions():
                                  "semblance of them as a person. Next, I will provide you with samples of their "
                                  "biography so that you can discern the kind of person they are and what experiences"
                                  "they have made in the past. "
-                                 "Finally, I want you to ask me a series of questions that will help you in "
-                                 "patterning how I interact. Include questions about personality, dislikes, "
-                                 "morality & ethics, lifestyle, relationships, future. "
-                                 "The number of questions that you ask me should be five questions of your "
-                                 "choosing. "
                                  f"Here is a description of the character so that you’ll have a semblance of them "
                                  f"as a person: {personaIntroduction}"
-                                 "Here are three short articles that are indicative of their personality and style. "
+                                 f"Here are some of their character traits: {characterTraits}"
+                                 "Here are some articles that are stories from their biography. "
                                  "Each article starts with the phrase “*START OF ARTICLE*” and ends with the phrase "
                                  "“*END OF ARTICLE*”: "
                                  f"{personaStories}"
-                                 "You are to now go ahead and start asking me questions to aid in your effort to "
-                                 "detect my conversational style. The number of questions should be around five "
-                                 "questions of your choosing, though you can ask more questions if needed. "
-                                 "Please go ahead and get started."}
+                      }
 
     # List to store conversation messages
     global messages
@@ -81,16 +79,6 @@ def generateQuestions():
 
     flash("Persona: " + name + "\n" + assistant_reply)
     return render_template("generate_questions.html")
-
-
-@app.route("/generateDepth", methods=["POST"])
-def generateDepth():
-    messages.append({"role": "user", "content": request.form.get("user_input")})
-    print(messages)
-    assistant_reply = generate_depth(client, messages)
-    flash("Persona: " + name + "\n" + assistant_reply)
-    return render_template("generate_depth.html")
-
 
 @app.route("/describeExperience", methods=["POST"])
 def describeExperience():
@@ -146,9 +134,9 @@ def checkPersonaExperience():
 
     messages.append(
         {"role": "user",
-         "content": "Write a thorough description of a persona that captures the personality and how the persona "
-                    "handles situations that you were trying to imitate in this conversation.Also include "
-                    "controversial character traits. "})
+         "content": "Now, write a thorough description of a persona that captures the personality and "
+                    "how the persona handles situations. Include both positive and controversial "
+                    "character traits."})
     # Create a conversation with the assistant
     chat = client.chat.completions.create(
         model="gpt-3.5-turbo", messages=messages

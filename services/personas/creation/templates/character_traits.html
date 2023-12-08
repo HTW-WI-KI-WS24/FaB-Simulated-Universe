@@ -64,7 +64,7 @@
 </head>
 <body>
 <div class="container">
-    <form action="describeExperience" method="post">
+    <form action="generateQuestions" method="post">
         {% for message in get_flashed_messages() %}
         <div class="message-box">
             {{ message|replace('\n', '</p><p>')|safe }}
