@@ -40,7 +40,7 @@ def createConversation():
     personaData = response1.json()["persona"]
     savedData = {
         "username": personaData["name"],
-        "biographie": personaData["biography"]
+        "biography": personaData["biography"]
     }
     savedName2 = savedData["name"]
     savedBiography = savedData["biography"]
