@@ -3,12 +3,18 @@ import json
 import requests
 from openai import OpenAI
 
+from dotenv import load_dotenv
+load_dotenv('.env.local')
+
+api_key = os.getenv('OPENAI_API_KEY')
+secret_key = os.getenv('SECRET_KEY')
+
 client = OpenAI(
     api_key='insertAPIKeyHere'
 )
 
 app = Flask(__name__)
-app.secret_key = "password123"
+app.secret_key = secret_key
 
 url = 'http://persona-persistence:8082/getAllPersonas'
 getPersonaUrl = 'http://persona-persistence:8082/getPersona/'
