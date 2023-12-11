@@ -48,7 +48,7 @@ def scrape_heroes(url):
 heroes_data = scrape_heroes(base_url)
 
 # Drucken der gesammelten Daten
-# for hero in heroes_data:
-# print(f"Name: {hero['name']}")
-# print(f"Designation: {hero['designation']}")
-# print(f"Text: {hero['text']}\n")
+#for hero in heroes_data:
+ #   print(f"Name: {hero['name']}")
+   # print(f"Designation: {hero['designation']}")
+    #print(f"Text: {hero['text']}\n")
