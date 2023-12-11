@@ -17,7 +17,7 @@ url = 'http://persona-persistence:8082/createPersona'
 @app.route("/")
 def index():
     flash("What's the Heros name?")
-    return render_template("enter_name.html")
+    return render_template("0_enter_name.html")
 
 
 @app.route("/getIntroduction", methods=["POST"])
@@ -26,7 +26,7 @@ def getIntroduction():
     name = request.form.get("user_input")
     flash("Okay, let's create a Persona for " + name + ". Please insert a paragraph about the hero (e.g. from "
                                                        "their hero page) to describe their character traits.")
-    return render_template("hero_introduction.html")
+    return render_template("1_hero_introduction.html")
 
 
 @app.route("/addBiography", methods=["POST"])
@@ -35,14 +35,14 @@ def getWritingStyle():
     heroIntroduction = request.form.get("user_input")
     flash(
         "Hero: " + name + "\n Please insert Stories from the Heros Lore Page here.")
-    return render_template("bio_stories.html")
+    return render_template("2_bio_stories.html")
 
 @app.route("/addTraits", methods=["POST"])
 def generateDepth():
     global heroBiography
     heroBiography = request.form.get("user_input")
     flash("Persona: " + name + "\n Please insert character traits for this Hero.")
-    return render_template("character_traits.html")
+    return render_template("3_character_traits.html")
 
 # TODO: Change Creation Process based on Hero Data and Stories from http://fabtcg.com/heroes
 #       and http://fabtcg.com/stories
@@ -124,8 +124,8 @@ def checkPersonaExperience():
     # Return the generated article content
     flash("Persona: " + name + "\n" + chat.choices[0].message.content)
 
-    return render_template("generate_persona_prompt.html")
+    return render_template("5_generate_persona_prompt.html")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
