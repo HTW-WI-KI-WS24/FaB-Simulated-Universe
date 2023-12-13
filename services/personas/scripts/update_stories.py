@@ -4,10 +4,14 @@ from urllib.parse import urljoin, urlparse
 
 base_url = "https://fabtcg.com/"
 stories_path = "stories"
+characters = [
+    "Arakni", "Azalea", "Benji", "Boltyn", "Bravo", "Brevant", "Briar",
+    "Chane", "Dash", "Data Doll", "Dorinthea", "Dromai", "Emperor", "Fai",
+    "Genis", "Ira", "Iyslander", "Kano", "Kassai", "Katsu", "Kavdaen", "Kayo",
+    "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Prism", "Rhinar", "Riptide",
+    "Shiyana", "Teklovossen", "Uzuri", "Valda", "Viserai", "Vynnset", "Yoji"
+]
 
-
-# TODO:
-#  Zu den Stories zugehörige Helden mitscrapen bzw. schauen inwieweit das möglich ist
 def scrape_story_text(detail_soup):
     story_text = ""
 
@@ -34,6 +38,11 @@ def scrape_story_text(detail_soup):
 
     return story_text.strip()
 
+def find_characters_in_text(text):
+    found_characters = [character for character in characters if character in text]
+    return found_characters
+
+
 def scrape_stories(url):
     headers = {'User-Agent': 'Mozilla/5.0 ...'}
     try:
@@ -46,25 +55,41 @@ def scrape_stories(url):
             if not story_link:
                 continue
 
-            title = story_link.find("h5").text.strip() if story_link.find("h5") else "Unbekannter Titel"
-            description = story_link.find("p").text.strip() if story_link.find("p") else "Keine Beschreibung"
+            title = story_link.find("h5").text.strip() if story_link.find("h5") else "Unknown Title"
+            description = story_link.find("p").text.strip() if story_link.find("p") else "No Description"
             detail_link = story_link["href"]
+
+            # Handle the specific case for "Stories of Illumination"
+            if title == "Stories of Illumination":
+                detail_link = "/heroes/prism/stories-of-illumination/"
+
+            # Search characters in title and description
+            title_characters = find_characters_in_text(title)
+            description_characters = find_characters_in_text(description)
 
             detail_url = urljoin(base_url, detail_link)
             parsed_url = urlparse(detail_url)
             if parsed_url.netloc != urlparse(base_url).netloc:
-                continue  # Sicherstellen, dass wir auf der gleichen Domain bleiben
+                continue  # Ensure we stay on the same domain
+
+            # Search characters in URL
+            link_characters = find_characters_in_text(detail_url)
 
             detail_response = requests.get(detail_url, headers=headers)
             detail_soup = BeautifulSoup(detail_response.content, 'html.parser')
 
-            # Rufen Sie die Funktion auf, um den Text zu scrapen
+            # Scrape the text and search for characters
             story_text = scrape_story_text(detail_soup)
+            text_characters = find_characters_in_text(story_text)
+
+            # Combine all found characters without duplicates
+            all_characters = list(set(title_characters + description_characters + link_characters + text_characters))
 
             stories.append({
                 "title": title,
                 "description": description,
-                "text": story_text
+                "text": story_text,
+                "characters": all_characters  # Add found characters
             })
 
         return stories
@@ -73,12 +98,13 @@ def scrape_stories(url):
         print(f"Error during requests to {url}: {str(e)}")
         return []
 
-# URL der Hauptseite der Geschichten
+# URL of the main stories page
 stories_url = urljoin(base_url, stories_path)
 stories_data = scrape_stories(stories_url)
 
-# Drucken der gesammelten Daten
+# Print the collected data
 for story in stories_data:
-    print(f"Titel: {story['title']}")
-    print(f"Beschreibung: {story['description']}")
-    print(f"Text: {story['text']}\n")
+    print(f"Title: {story['title']}")
+    print(f"Description: {story['description']}")
+    print(f"Text: {story['text']}")
+    print(f"Characters: {', '.join(story['characters'])}\n")
