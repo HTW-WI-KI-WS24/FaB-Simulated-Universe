@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
+from collections import namedtuple
 
 base_url = "https://fabtcg.com/"
 stories_path = "stories"
@@ -11,6 +12,8 @@ characters = [
     "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Prism", "Rhinar", "Riptide",
     "Shiyana", "Teklovossen", "Uzuri", "Valda", "Viserai", "Vynnset", "Yoji"
 ]
+
+Story = namedtuple('Story', 'title description text characters')
 
 def scrape_story_text(detail_soup):
     story_text = ""
@@ -85,12 +88,14 @@ def scrape_stories(url):
             # Combine all found characters without duplicates
             all_characters = list(set(title_characters + description_characters + link_characters + text_characters))
 
-            stories.append({
-                "title": title,
-                "description": description,
-                "text": story_text,
-                "characters": all_characters  # Add found characters
-            })
+            stories.append(Story(
+                title=title,
+                description=description,
+                text=story_text,
+                characters=all_characters  # Add found characters
+            ))
+
+            return stories
 
         return stories
 
@@ -103,8 +108,14 @@ stories_url = urljoin(base_url, stories_path)
 stories_data = scrape_stories(stories_url)
 
 # Print the collected data
-for story in stories_data:
-    print(f"Title: {story['title']}")
-    print(f"Description: {story['description']}")
-    print(f"Text: {story['text']}")
-    print(f"Characters: {', '.join(story['characters'])}\n")
+if __name__ == "__main__":
+    # This block will only execute when the script is run directly,
+    # not when it's imported as a module in another script
+    stories_data = scrape_stories(stories_url)
+
+    # Print the collected data
+    for story in stories_data:
+        print(f"Title: {story.title}")
+        print(f"Description: {story.description}")
+        print(f"Text: {story.text}")
+        print(f"Characters: {', '.join(story.characters)}\n")
