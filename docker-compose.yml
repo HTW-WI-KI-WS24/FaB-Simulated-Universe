@@ -45,7 +45,7 @@ services:
     networks:
       - backend
 
-  chromadb:
+  chroma-db:
     image: chroma:latest
     container_name: local-chromadb
     build:

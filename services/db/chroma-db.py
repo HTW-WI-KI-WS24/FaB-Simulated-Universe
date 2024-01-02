@@ -1,16 +1,13 @@
 import chromadb
+import sqlite3
 from flask import Flask, jsonify, request
-from chromadb.utils import embedding_functions
 
-dbClient = chromadb.Client()
-collection = dbClient.create_collection(name="personas")
+# from chromadb.utils import embedding_functions
+
+chroma_client = chromadb.Client()
+collection = chroma_client.create_collection(name="personas")
 
 app = Flask(__name__)
-
-# Konfigurieren des ChromaDB-Clients und Erstellen einer Collection
-client = chromadb.Client()
-collection = client.create_collection(name="personas")
-
 
 @app.route('/createPersona', methods=['POST'])
 def createPersona():
@@ -116,3 +113,4 @@ for result in abfrage_ergebnisse:
 #def deleteHero(id):
 #    dbClient.delete(id)
 """
+
