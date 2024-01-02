@@ -52,6 +52,8 @@ services:
       context: services/db
     ports:
       - "8000:8000"
+    volumes:
+      - chromadb-data:var/lib/chromadb
     networks:
       - backend
 
@@ -61,4 +63,7 @@ networks:
 
 volumes:
   mysql-data:
+    driver: local
+
+  chromadb-data:
     driver: local
