@@ -55,3 +55,10 @@ services:
     networks:
       - backend
 
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
