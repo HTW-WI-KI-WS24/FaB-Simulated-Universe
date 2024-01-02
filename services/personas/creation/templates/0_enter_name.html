@@ -9,84 +9,57 @@
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f4f4f4;
+            background-image: url('path_to_your_background_image.jpg'); /* Replace with your image path */
+            background-size: cover; /* Cover the entire viewport */
+            background-position: center; /* Center the image */
+            color: #ffffff;
         }
         .container {
-            background-color: white;
+            background-color: #1e1e1e;
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); /* Subtle white shadow for visibility */
             text-align: center;
             align-self: center;
-            width: 80%; /* Adjust the width as needed */
-            max-width: 500px; /* Set a max-width for larger screens */
-            overflow: visible;
+            width: 80%;
+            max-width: 500px;
+            border: 1px solid #2e2e2e; /* Visible edge for the container */
         }
         .message-box {
-            background-color: #e7f3fe; /* Light blue background for messages */
-            border-left: 4px solid #2196F3; /* Blue border on the left for highlighting */
+            background-color: #2a2a2a;
+            border-left: 4px solid #bb86fc;
             padding: 10px;
-            margin: 0 auto; /* Centers the box horizontally */
+            margin: 10px auto;
             text-align: left;
             box-sizing: border-box;
-            width: calc(100% - 40px); /* Full width within the container */
-            overflow: auto;
+            width: calc(100% - 40px);
+            color: #e0e0e0;
         }
-        input[type="text"], input[type="submit"] {
+        input[type="text"], input[type="submit"], textarea {
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #ddd;
-            width: calc(100% - 20px); /* Sorgt dafür, dass das Eingabefeld und der Button die volle Breite einnehmen */
+            border: 1px solid #333;
+            background-color: #262626;
+            color: #ddd;
+            width: calc(100% - 20px);
         }
         input[type="submit"] {
-            background-color: #007bff;
-            color: white;
+            background-color: #bb86fc;
             cursor: pointer;
         }
         input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%; /* Der Button nimmt die volle Breite ein */
-        }
-        button:hover {
-            background-color: #218838;
+            background-color: #9e55fc;
         }
         textarea {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: calc(100% - 20px); /* Adjust width as necessary, minus padding */
-            resize: vertical; /* Allows the user to resize the textarea vertically */
-            font-family: Arial, sans-serif; /* To match the font style of the other inputs */
-            font-size: 1rem; /* Standard font size for text inputs */
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
         }
     </style>
-    <script>
-        function redirectToConversation() {
-            var baseUrl;
-            var hostname = window.location.hostname;
-
-            if (hostname === "localhost" || hostname === "127.0.0.1") {
-                baseUrl = "http://localhost:8081";
-            } else {
-                baseUrl = "toBeImplemented";
-            }
-
-            window.location.href = baseUrl;
-        }
-    </script>
 </head>
 <body>
 <div class="container">
@@ -96,11 +69,14 @@
             {{ message|replace('\n', '</p><p>')|safe }}
         </div>
         {% endfor %}
-        <br>
-        <input type="text" name= "user_input" id="user_input" >
+        <input type="text" name="user_input" id="user_input" placeholder="Enter your message here">
         <input type="submit" value="SEND" id="send">
     </form>
-    <button onclick="redirectToConversation()">Create Conversation</button>
 </div>
+<script>
+    function redirectToConversation() {
+        // The script can remain the same or be updated as needed
+    }
+</script>
 </body>
 </html>
