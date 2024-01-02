@@ -5,12 +5,12 @@ from chromadb.utils import embedding_functions
 dbClient = chromadb.Client()
 collection = dbClient.create_collection(name="personas")
 
-
 app = Flask(__name__)
 
 # Konfigurieren des ChromaDB-Clients und Erstellen einer Collection
 client = chromadb.Client()
 collection = client.create_collection(name="personas")
+
 
 @app.route('/createPersona', methods=['POST'])
 def createPersona():
@@ -22,6 +22,7 @@ def createPersona():
     )
     return jsonify({'message': 'Persona created successfully', 'personaData': data})
 
+
 @app.route('/getAllPersonas', methods=['GET'])
 def getAllPersonas():
     # Abfragen aller Personas in der Collection
@@ -30,6 +31,7 @@ def getAllPersonas():
         n_results=10
     )
     return jsonify({'personas': personas})
+
 
 @app.route('/getPersona/<name>', methods=['GET'])
 def getPersona(name):
@@ -43,9 +45,9 @@ def getPersona(name):
     else:
         return jsonify({'message': 'Persona not found'}), 404
 
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8082)
-
 
 """
 # embeddings?? -> noch nicht angeschaut
