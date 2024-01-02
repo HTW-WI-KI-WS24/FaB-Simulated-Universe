@@ -1,11 +1,53 @@
 import chromadb
+from flask import Flask, jsonify, request
 from chromadb.utils import embedding_functions
+
 dbClient = chromadb.Client()
+collection = dbClient.create_collection(name="personas")
 
-import chromadb
 
-collection = dbClient.create_collection(name="heros")
+app = Flask(__name__)
 
+# Konfigurieren des ChromaDB-Clients und Erstellen einer Collection
+client = chromadb.Client()
+collection = client.create_collection(name="personas")
+
+@app.route('/createPersona', methods=['POST'])
+def createPersona():
+    data = request.get_json()
+    # Hinzufügen des Persona-Dokuments und seiner Embeddings zur ChromaDB-Collection
+    collection.add(
+        documents=[data['biography']],
+        metadatas=[{"name": data['name']}]
+    )
+    return jsonify({'message': 'Persona created successfully', 'personaData': data})
+
+@app.route('/getAllPersonas', methods=['GET'])
+def getAllPersonas():
+    # Abfragen aller Personas in der Collection
+    personas = collection.query(
+        query_texts=["*"],
+        n_results=10
+    )
+    return jsonify({'personas': personas})
+
+@app.route('/getPersona/<name>', methods=['GET'])
+def getPersona(name):
+    # Durchführen einer Abfrage basierend auf dem Namen der Persona
+    result = collection.query(
+        query_texts=[name],
+        n_results=1
+    )
+    if result:
+        return jsonify({'persona': result[0]})
+    else:
+        return jsonify({'message': 'Persona not found'}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=8082)
+
+
+"""
 # embeddings?? -> noch nicht angeschaut
 hero_embeddings = [
     [1.2, 2.3, 4.5],  # Vektorrepräsentation für Hero 1??
@@ -71,3 +113,4 @@ for result in abfrage_ergebnisse:
 
 #def deleteHero(id):
 #    dbClient.delete(id)
+"""

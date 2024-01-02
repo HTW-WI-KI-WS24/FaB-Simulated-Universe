@@ -45,8 +45,13 @@ services:
     networks:
       - backend
 
-volumes:
-  mysql-data:
+  chromadb:
+    image: chroma:latest
+    container_name: local-chromadb
+    build:
+      context: services/db
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
 
-networks:
-  backend:
