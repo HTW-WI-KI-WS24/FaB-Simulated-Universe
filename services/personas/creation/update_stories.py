@@ -3,13 +3,11 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from collections import namedtuple
 
-# base_url = "https://fabtcg.com/"
-# stories_path = "stories"
 characters = [
-     "Arakni", "Azalea", "Benji", "Boltyn", "Bravo", "Brevant", "Briar",
+     "Arakni", "Azalea", "Benji", "Betsy", "Boltyn", "Bravo", "Brevant", "Briar",
      "Chane", "Dash", "Data Doll", "Dorinthea", "Dromai", "Emperor", "Fai",
      "Genis", "Ira", "Iyslander", "Kano", "Kassai", "Katsu", "Kavdaen", "Kayo",
-     "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Prism", "Rhinar", "Riptide",
+     "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Olympia", "Prism", "Rhinar", "Riptide",
      "Shiyana", "Teklovossen", "Uzuri", "Valda", "Viserai", "Vynnset", "Yoji"
 ]
 
@@ -98,19 +96,18 @@ def scrape_stories(url):
                 characters=all_characters  # Add found characters
             ))
 
-            return stories
-
         return stories
 
     except requests.RequestException as e:
         print(f"Error during requests to {url}: {str(e)}")
         return []
 
-
-# URL of the main stories page
+# base_url = "https://fabtcg.com/"
+# stories_path = "stories"
+# # URL of the main stories page
 # stories_url = urljoin(base_url, stories_path)
 # stories_data = scrape_stories(stories_url)
-
+#
 # # Print the collected data
 # if __name__ == "__main__":
 #     # This block will only execute when the script is run directly,
