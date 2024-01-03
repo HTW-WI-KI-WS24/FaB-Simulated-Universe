@@ -3,17 +3,19 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from collections import namedtuple
 
-base_url = "https://fabtcg.com/"
-stories_path = "stories"
+# base_url = "https://fabtcg.com/"
+# stories_path = "stories"
 characters = [
-    "Arakni", "Azalea", "Benji", "Boltyn", "Bravo", "Brevant", "Briar",
-    "Chane", "Dash", "Data Doll", "Dorinthea", "Dromai", "Emperor", "Fai",
-    "Genis", "Ira", "Iyslander", "Kano", "Kassai", "Katsu", "Kavdaen", "Kayo",
-    "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Prism", "Rhinar", "Riptide",
-    "Shiyana", "Teklovossen", "Uzuri", "Valda", "Viserai", "Vynnset", "Yoji"
+     "Arakni", "Azalea", "Benji", "Boltyn", "Bravo", "Brevant", "Briar",
+     "Chane", "Dash", "Data Doll", "Dorinthea", "Dromai", "Emperor", "Fai",
+     "Genis", "Ira", "Iyslander", "Kano", "Kassai", "Katsu", "Kavdaen", "Kayo",
+     "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Prism", "Rhinar", "Riptide",
+     "Shiyana", "Teklovossen", "Uzuri", "Valda", "Viserai", "Vynnset", "Yoji"
 ]
 
+
 Story = namedtuple('Story', 'title description text characters')
+
 
 def scrape_story_text(detail_soup):
     story_text = ""
@@ -40,6 +42,7 @@ def scrape_story_text(detail_soup):
             story_text += p.text.strip() + " "
 
     return story_text.strip()
+
 
 def find_characters_in_text(text):
     found_characters = [character for character in characters if character in text]
@@ -70,9 +73,9 @@ def scrape_stories(url):
             title_characters = find_characters_in_text(title)
             description_characters = find_characters_in_text(description)
 
-            detail_url = urljoin(base_url, detail_link)
+            detail_url = urljoin(url, detail_link)
             parsed_url = urlparse(detail_url)
-            if parsed_url.netloc != urlparse(base_url).netloc:
+            if parsed_url.netloc != urlparse(url).netloc:
                 continue  # Ensure we stay on the same domain
 
             # Search characters in URL
@@ -103,19 +106,19 @@ def scrape_stories(url):
         print(f"Error during requests to {url}: {str(e)}")
         return []
 
+
 # URL of the main stories page
-stories_url = urljoin(base_url, stories_path)
-stories_data = scrape_stories(stories_url)
+# stories_url = urljoin(base_url, stories_path)
+# stories_data = scrape_stories(stories_url)
 
-# Print the collected data
-if __name__ == "__main__":
-    # This block will only execute when the script is run directly,
-    # not when it's imported as a module in another script
-    stories_data = scrape_stories(stories_url)
-
-    # Print the collected data
-    for story in stories_data:
-        print(f"Title: {story.title}")
-        print(f"Description: {story.description}")
-        print(f"Text: {story.text}")
-        print(f"Characters: {', '.join(story.characters)}\n")
+# # Print the collected data
+# if __name__ == "__main__":
+#     # This block will only execute when the script is run directly,
+#     # not when it's imported as a module in another script
+#
+#     # Print the collected data
+#     for story in stories_data:
+#         print(f"Title: {story.title}")
+#         print(f"Description: {story.description}")
+#         print(f"Text: {story.text}")
+#         print(f"Characters: {', '.join(story.characters)}\n")
