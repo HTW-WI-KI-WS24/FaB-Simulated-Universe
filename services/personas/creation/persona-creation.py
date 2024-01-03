@@ -33,7 +33,7 @@ def scrapeHeroes():
 
 @app.route("/scrapeStories")
 def scrapeStories():
-    return render_template('stories.html', stories=scrapedStories)
+    return render_template('story_scraper.html', stories=scrapedStories)
 
 
 @app.route("/")
