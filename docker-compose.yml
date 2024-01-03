@@ -53,7 +53,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - chromadb-data:var/lib/chromadb
+      - chromadb-data:/var/lib/chromadb
     networks:
       - backend
 
