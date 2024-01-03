@@ -9,70 +9,69 @@
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center; /* Geändert für zentrierte Ausrichtung */
             min-height: 100vh;
             margin: 0;
-            background-color: #f4f4f4;
+            background-color: #333; /* Dunkelgrauer Hintergrund */
+            color: #ffffff; /* Weißer Text für bessere Lesbarkeit */
         }
         .container {
-            background-color: white;
+            background-color: #2e2e2e; /* Dunkleres Grau für den Container */
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Dunklerer Schatten für mehr Tiefe */
             text-align: center;
             align-self: center;
-            width: 80%; /* Adjust the width as needed */
-            max-width: 500px; /* Set a max-width for larger screens */
-            overflow: visible;
+            width: 80%;
+            max-width: 500px;
+            border: 1px solid #3a3a3a; /* Etwas hellerer Rand für Kontrast */
         }
         .message-box {
-            background-color: #e7f3fe; /* Light blue background for messages */
-            border-left: 4px solid #2196F3; /* Blue border on the left for highlighting */
+            background-color: #3a3a3a; /* Noch dunkleres Grau für Nachrichtenboxen */
+            border-left: 4px solid #bb86fc; /* Lila Akzentfarbe */
             padding: 10px;
-            margin: 0 auto; /* Centers the box horizontally */
+            margin: 10px auto;
             text-align: left;
             box-sizing: border-box;
-            width: calc(100% - 40px); /* Full width within the container */
-            overflow: auto;
+            width: calc(100% - 40px);
+            color: #e0e0e0; /* Hellere Textfarbe für besseren Kontrast */
         }
-        input[type="text"], input[type="submit"] {
+        input[type="text"], input[type="submit"], textarea {
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #ddd;
+            border: 1px solid #444; /* Dunklerer Rand für Eingabefelder */
+            background-color: #262626; /* Dunkelgraue Hintergrundfarbe für Eingabefelder */
+            color: #ddd; /* Hellere Textfarbe für Eingabefelder */
             width: calc(100% - 20px);
         }
         input[type="submit"] {
-            background-color: #007bff;
-            color: white;
+            background-color: #bb86fc; /* Lila Akzentfarbe für den Senden-Button */
             cursor: pointer;
+            color: white; /* Weißer Text für den Button */
         }
         input[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #9e55fc; /* Dunklere Schattierung beim Hover */
         }
         textarea {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: calc(100% - 20px); /* Adjust width as necessary, minus padding */
-            resize: vertical; /* Allows the user to resize the textarea vertically */
-            font-family: Arial, sans-serif; /* To match the font style of the other inputs */
-            font-size: 1rem; /* Standard font size for text inputs */
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
         }
         button {
             padding: 10px 15px;
-            background-color: #28a745;
+            background-color: #4d90fe; /* Angepasste Farbe für den Button */
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             width: 100%; /* Der Button nimmt die volle Breite ein */
-                 }
+        }
         button:hover {
-            background-color: #218838;
+            background-color: #357ae8; /* Dunklere Blautönung beim Hover */
         }
     </style>
+
     <script>
         function redirectToConversation() {
             var baseUrl;
