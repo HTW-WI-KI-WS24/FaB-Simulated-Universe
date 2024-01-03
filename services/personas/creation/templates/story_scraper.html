@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Story Scraper</title>
+</head>
+<body>
+<h1>Scraped Stories</h1>
+<ul>
+    {% for story in stories %}
+    <li>
+        <h2>{{ story.title }}</h2>
+        <p>Description: {{ story.description }}</p>
+        <p>{{ story.text }}</p>
+        <p>Assigned Characters: {{ ', '.join(story.characters) }}</p>
+    </li>
+    {% endfor %}
+</ul>
+</body>
+</html>

@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-base_url = "https://fabtcg.com/heroes"
+# base_url = "https://fabtcg.com/heroes"
 
 
 def scrape_heroes(url):
@@ -23,7 +23,7 @@ def scrape_heroes(url):
             designation = hero_link.find("h5").text.strip() if hero_link.find("h5") else "Unbekannte Bezeichnung"
 
             detail_link = hero_link["href"]
-            full_link = urljoin(base_url, detail_link)
+            full_link = urljoin(url, detail_link)
 
             # Scraping der Detailseite des Helden
             detail_response = requests.get(full_link, headers=headers)
@@ -45,7 +45,7 @@ def scrape_heroes(url):
         return []
 
 
-heroes_data = scrape_heroes(base_url)
+# heroes_data = scrape_heroes(base_url)
 
 # Drucken der gesammelten Daten
 #for hero in heroes_data:
