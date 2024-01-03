@@ -1,8 +1,18 @@
+from urllib.parse import urljoin
+
 import requests
 from flask import Flask, render_template, request, flash
 from openai import OpenAI
 
+import update_heroes
+import update_stories
+
 client = OpenAI(api_key='insertAPIKeyHere')
+base_url = "https://fabtcg.com/"
+stories_path = "stories"
+stories_url = urljoin(base_url, stories_path)
+heroes_path = "heroes"
+heroes_url = urljoin(base_url, heroes_path)
 
 app = Flask(__name__)
 app.secret_key = "password123"
@@ -11,7 +21,19 @@ persona_introduction = ""
 persona_writing = ""
 name = ""
 messages = []
-url = 'http://persona-persistence:8082/createPersona'
+db_service_url = 'http://persona-persistence:8082/createPersona'
+scrapedStories = update_stories.scrape_stories(stories_url)
+scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
+
+
+@app.route("/scrapeHeroes")
+def scrapeHeroes():
+    return render_template('hero_scraper.html', heroes=scrapedHeroes)
+
+
+@app.route("/scrapeStories")
+def scrapeStories():
+    return render_template('story_scraper.html', stories=scrapedStories)
 
 
 @app.route("/")
@@ -37,12 +59,14 @@ def getWritingStyle():
         "Hero: " + name + "\n Please insert Stories from the Heros Lore Page here.")
     return render_template("2_bio_stories.html")
 
+
 @app.route("/addTraits", methods=["POST"])
 def generateDepth():
     global heroBiography
     heroBiography = request.form.get("user_input")
     flash("Persona: " + name + "\n Please insert character traits for this Hero.")
     return render_template("3_character_traits.html")
+
 
 # TODO: Change Creation Process based on Hero Data and Stories from http://fabtcg.com/heroes
 #       and http://fabtcg.com/stories
@@ -87,6 +111,7 @@ def generateDescription():
           )
     return render_template("4_generate_description.html")
 
+
 @app.route("/checkPersonaDescription", methods=["POST"])
 def checkPersonaExperience():
     confirmation = (request.form.get("user_input"))
@@ -98,7 +123,7 @@ def checkPersonaExperience():
             messages.append({"role": "user",
                              "content": "I think there is something missing about your perception of the heros"
                                         "character: " + confirmation + ". Please try to adapt your "
-                                        "description accordingly."})
+                                                                       "description accordingly."})
             # Model responds with new description
             model_response = client.chat.completions.create(
                 model="gpt-3.5-turbo", messages=messages
@@ -120,7 +145,7 @@ def checkPersonaExperience():
     # Safe the generated Data in the database
     prompt = chat.choices[0].message.content
     data = {'name': name, 'biography': prompt}
-    requests.post(url, json=data)
+    requests.post(db_service_url, json=data)
     # Return the generated article content
     flash("Persona: " + name + "\n" + chat.choices[0].message.content)
 
