@@ -51,7 +51,7 @@ services:
     image: chroma:latest
     container_name: local-chromadb
     build:
-      context: services/db
+      context: services/personas/db
     ports:
       - "8083:8083"
     volumes:
