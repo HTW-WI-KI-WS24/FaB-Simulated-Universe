@@ -75,6 +75,26 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8083)
 
 """
+@app.route('/pullscrapedHeroes', methods=['POST'])
+def pullingScrapedHeroes():
+    data = request.get_json()
+    if data:
+        for hero in data:
+            personaCollection.add(
+                documents=[hero['text']],
+                metadatas=[{"name": hero['name'], "designation": hero['designation']}],
+                ids=[last_id + 1]
+            )
+            print(f"Name: {hero['name']}")
+            print(f"Designation: {hero['designation']}")
+            print(f"Text: {hero['text']}\n")
+        return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': data})
+    else:
+        return "No data received", 400
+
+
+
+
 @app.route('/pullscrapedHeroes')
 def pullingScrapedData():
     url = 'http://localhost:8080/scrapeHeroes'
