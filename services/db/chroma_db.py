@@ -1,20 +1,49 @@
 import chromadb
+import requests
 from flask import Flask, jsonify, request
 
+# import services.personas.creation.update_heroes
+# import services.personas.creation.update_stories
 # from chromadb.utils import embedding_functions
 
 chroma_client = chromadb.Client()
-collection = chroma_client.create_collection(name="personas")
+personaCollection = chroma_client.create_collection(name="personas")
+heroCollection = chroma_client.create_collection(name="heroes")
+
+# scrapedStories = update_stories.scrape_stories(stories_url)
+# scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
 
 app = Flask(__name__)
+global last_id
+last_id = 0
+
+
+@app.route('/pullscrapedHeroes', methods=['POST'])
+def pullingScrapedHeroes():
+    data = request.get_json()
+    if data:
+        for hero in data:
+            personaCollection.add(
+                documents=[hero['text']],
+                metadatas=[{"name": hero['name'], "designation": hero['designation']}],
+                ids=[last_id + 1]
+            )
+            print(f"Name: {hero['name']}")
+            print(f"Designation: {hero['designation']}")
+            print(f"Text: {hero['text']}\n")
+        return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': data})
+    else:
+        return "No data received", 400
+
 
 @app.route('/createPersona', methods=['POST'])
 def createPersona():
     data = request.get_json()
     # Hinzufügen des Persona-Dokuments und seiner Embeddings zur ChromaDB-Collection
-    collection.add(
-        documents=[data['biography']],
-        metadatas=[{"name": data['name']}]
+    personaCollection.add(
+        documents=[data['text']],
+        metadatas=[{"name": data['name']}],
+        ids=[]
     )
     return jsonify({'message': 'Persona created successfully', 'personaData': data})
 
@@ -22,7 +51,7 @@ def createPersona():
 @app.route('/getAllPersonas', methods=['GET'])
 def getAllPersonas():
     # Abfragen aller Personas in der Collection
-    personas = collection.query(
+    personas = personaCollection.query(
         query_texts=["*"],
         n_results=10
     )
@@ -32,7 +61,7 @@ def getAllPersonas():
 @app.route('/getPersona/<name>', methods=['GET'])
 def getPersona(name):
     # Durchführen einer Abfrage basierend auf dem Namen der Persona
-    result = collection.query(
+    result = personaCollection.query(
         query_texts=[name],
         n_results=1
     )
@@ -43,9 +72,45 @@ def getPersona(name):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8082)
+    app.run(debug=True, host='0.0.0.0', port=8083)
 
 """
+@app.route('/pullscrapedHeroes')
+def pullingScrapedData():
+    url = 'http://localhost:8080/scrapeHeroes'
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+          result = response.json()
+          heroes = result.get("heroes", [])
+        else:
+            print(f"error: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Error during request: {str(e)}")
+    if heroes:
+        for hero in heroes:
+            personaCollection.add(
+                documents=[hero['text']],
+                metadatas=[{"name": hero['name'], "designation": hero['designation']}],
+                ids=[last_id + 1]
+            )
+            print(f"Name: {hero['name']}")
+            print(f"Designation: {hero['designation']}")
+            print(f"Text: {hero['text']}\n")
+    return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': heroes})
+
+
+
+
+
+
+
+
+
+
+
+
 # embeddings?? -> noch nicht angeschaut
 hero_embeddings = [
     [1.2, 2.3, 4.5],  # Vektorrepräsentation für Hero 1??
@@ -112,4 +177,3 @@ for result in abfrage_ergebnisse:
 #def deleteHero(id):
 #    dbClient.delete(id)
 """
-

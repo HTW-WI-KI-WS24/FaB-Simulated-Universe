@@ -4,6 +4,7 @@ import requests
 from flask import Flask, render_template, request, flash
 from openai import OpenAI
 
+
 import update_heroes
 import update_stories
 
@@ -22,19 +23,29 @@ persona_writing = ""
 name = ""
 messages = []
 db_service_url = 'http://persona-persistence:8082/createPersona'
+chromadb_service_url = 'http://chroma_db/pullscrapedHeroes'
 scrapedStories = update_stories.scrape_stories(stories_url)
 scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
 
 
 @app.route("/scrapeHeroes")
 def scrapeHeroes():
-    return render_template('hero_scraper.html', heroes=scrapedHeroes)
+    for hero in scrapedHeroes:
+        name = hero.name
+        designation = hero.designation
+        text = hero.text
+        data = {'name': name, 'designation': designation, 'text': text}
+    response = requests.post(chromadb_service_url, json=data)
+    if response.status_code == 200:
+        return render_template('hero_scraper.html', heroes=scrapedHeroes)
+    else:
+        return "Error sending data to Chromadb", 500
+
 
 
 @app.route("/scrapeStories")
 def scrapeStories():
     return render_template('story_scraper.html', stories=scrapedStories)
-
 
 @app.route("/")
 def index():
