@@ -21,8 +21,8 @@ persona_introduction = ""
 persona_writing = ""
 name = ""
 messages = []
-db_service_url = 'http://persona-persistence:8082/createPersona'
-chromadb_service_url = 'http://chroma_db/pullscrapedHeroes'
+# db_service_url = 'http://persona-persistence:8082/createPersona'
+chromadb_service_url = 'http://persona-persistence:8082/pullscrapedHeroes'
 scrapedStories = update_stories.scrape_stories(stories_url)
 scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
 
@@ -34,11 +34,8 @@ def scrapeHeroes():
         designation = hero['designation']
         text = hero['text']
         data = {'name': name, 'designation': designation, 'text': text}
-    response = requests.post(chromadb_service_url, json=data)
-    if response.status_code == 200:
-        return render_template('hero_scraper.html', heroes=scrapedHeroes)
-    else:
-        return "Error sending data to Chromadb", 500
+        requests.post(chromadb_service_url, json=data)
+    return render_template('hero_scraper.html', heroes=scrapedHeroes)
 
 
 @app.route("/scrapeStories")
