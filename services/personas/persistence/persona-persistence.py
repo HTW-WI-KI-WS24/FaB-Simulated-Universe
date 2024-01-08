@@ -5,10 +5,16 @@ from flask import Flask, jsonify, request
 
 # from chromadb.utils import embedding_functions
 
-chroma_client = chromadb.Client()
-chroma_client2 = chromadb.PersistentClient()
-heroesCollection = chroma_client.create_collection(name="heroes")
-storiesCollection = chroma_client.create_collection(name="stories")
+#chroma_client = chromadb.Client()
+chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
+
+heroesCollection = chroma_client.get_collection(name="heroes")
+if heroesCollection is None:
+    heroesCollection = chroma_client.create_collection(name="heroes")
+
+storiesCollection = chroma_client.get_collection(name="stories")
+if storiesCollection is None:
+    storiesCollection = chroma_client.create_collection(name="stories")
 
 app = Flask(__name__)
 
@@ -102,12 +108,16 @@ def getAllStories():
 def getHero(name):
     # Durchführen einer Abfrage basierend auf dem Namen der Persona
     result = heroesCollection.query(
-        query_texts=[name],
+        query_texts=["*"],
+        where={'name': name},
         n_results=1
     )
+    result.values()
     if result:
-        return jsonify({'hero': result[0]})
+        print(result)
+        return jsonify({'hero': result.values()})
     else:
+        print("no result")
         return jsonify({'message': 'hero not found'}), 404
 
 
