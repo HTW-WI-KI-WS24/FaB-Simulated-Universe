@@ -3,18 +3,19 @@ import requests
 import logging
 from flask import Flask, jsonify, request
 
+
 # from chromadb.utils import embedding_functions
 
 #chroma_client = chromadb.Client()
-chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 
+chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 heroesCollection = chroma_client.get_collection(name="heroes")
 if heroesCollection is None:
     heroesCollection = chroma_client.create_collection(name="heroes")
 
-storiesCollection = chroma_client.get_collection(name="stories")
+storiesCollection = chroma_client.get_collection(name="stories2")
 if storiesCollection is None:
-    storiesCollection = chroma_client.create_collection(name="stories")
+    storiesCollection = chroma_client.create_collection(name="stories2")
 
 app = Flask(__name__)
 
@@ -28,7 +29,7 @@ def get_next_id():
 
 
 @app.route('/pullscrapedHeroes', methods=['POST'])
-def pullingScrapedHeroes():
+def pullScrapedHeroes():
     try:
         data = request.get_json()
         if not data:
@@ -50,7 +51,7 @@ def pullingScrapedHeroes():
 
 
 @app.route('/pullscrapedStories', methods=['POST'])
-def pullingScrapedStories():
+def pullScrapedStories():
     try:
         data = request.get_json()
         if not data:
@@ -89,7 +90,7 @@ def getAllHeroes():
     # Abfragen aller Personas in der Collection
     heroes = heroesCollection.query(
         query_texts=["*"],
-        n_results=50
+        n_results=99
     )
     return jsonify({'heroes': heroes})
 
@@ -99,7 +100,7 @@ def getAllStories():
     # Abfragen aller Personas in der Collection
     stories = storiesCollection.query(
         query_texts=["*"],
-        n_results=50
+        n_results=99
     )
     return jsonify({'stories': stories})
 
@@ -110,92 +111,55 @@ def getHero(name):
     result = heroesCollection.query(
         query_texts=["*"],
         where={'name': name},
-        n_results=1
+        n_results=99
     )
-    result.values()
     if result:
-        print(result)
-        return jsonify({'hero': result.values()})
+        return jsonify({'hero': result})
     else:
         print("no result")
         return jsonify({'message': 'hero not found'}), 404
 
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8082)
-
-
 @app.route('/getStory/<title>', methods=['GET'])
 def getStory(title):
-    # Durchführen einer Abfrage basierend auf dem Namen der Persona
     result = storiesCollection.query(
-        query_texts=[title],
-        n_results=1
+        query_texts=["*"],
+        where={'title': title},
+        n_results=99
     )
     if result:
-        return jsonify({'story': result[0]})
+        return jsonify({'story': result})
     else:
         return jsonify({'message': 'story not found'}), 404
 
+
+@app.route('/getStoryWithHero/<name>', methods=['GET'])
+def getStoryWithHero(name):
+    result = storiesCollection.query(
+        query_texts=["*"],
+        where={'heroes': {'$eq': name}},
+        n_results=99
+    )
+    if result:
+        return jsonify({'story': result})
+    else:
+        return jsonify({'message': 'story not found'}), 404
+
+# deletemethoden noch implementieren
+@app.route('/deleteAllHeroes', methods=['GET'])
+def deleteAllHeroes():
+    )
+    return jsonify({'message': 'heroes successfully deleted'})
+
+
+@app.route('/deleteAllStories', methods=['GET'])
+def deleteAllStories():
+    return jsonify({'message': 'stories successfully deleted'})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8082)
 
 """
-@app.route('/pullscrapedHeroes', methods=['POST'])
-def pullingScrapedHeroes():
-    data = request.get_json()
-    if data:
-        for hero in data:
-            personaCollection.add(
-                documents=[hero['text']],
-                metadatas=[{"name": hero['name'], "designation": hero['designation']}],
-                ids=[last_id + 1]
-            )
-            print(f"Name: {hero['name']}")
-            print(f"Designation: {hero['designation']}")
-            print(f"Text: {hero['text']}\n")
-        return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': data})
-    else:
-        return "No data received", 400
-
-
-
-
-@app.route('/pullscrapedHeroes')
-def pullingScrapedData():
-    url = 'http://localhost:8080/scrapeHeroes'
-    try:
-        response = requests.get(url)
-
-        if response.status_code == 200:
-          result = response.json()
-          heroes = result.get("heroes", [])
-        else:
-            print(f"error: {response.status_code}")
-    except requests.RequestException as e:
-        print(f"Error during request: {str(e)}")
-    if heroes:
-        for hero in heroes:
-            personaCollection.add(
-                documents=[hero['text']],
-                metadatas=[{"name": hero['name'], "designation": hero['designation']}],
-                ids=[last_id + 1]
-            )
-            print(f"Name: {hero['name']}")
-            print(f"Designation: {hero['designation']}")
-            print(f"Text: {hero['text']}\n")
-    return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': heroes})
-
-
-
-
-
-
-
-
-
-
 
 
 # embeddings?? -> noch nicht angeschaut
