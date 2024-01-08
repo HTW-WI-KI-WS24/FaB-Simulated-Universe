@@ -22,7 +22,8 @@ persona_writing = ""
 name = ""
 messages = []
 # db_service_url = 'http://persona-persistence:8082/createPersona'
-chromadb_service_url = 'http://persona-persistence:8082/pullscrapedHeroes'
+chromadb_service_url = 'http://persona-persistence:8082'
+
 scrapedStories = update_stories.scrape_stories(stories_url)
 scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
 
@@ -33,13 +34,19 @@ def scrapeHeroes():
         {'name': hero['name'], 'designation': hero['designation'], 'text': hero['text']}
         for hero in scrapedHeroes
     ]
-    requests.post(chromadb_service_url, json=heroes_data, headers={'Content-Type': 'application/json'})
+    requests.post(chromadb_service_url + '/pullscrapedHeroes', json=heroes_data, headers={'Content-Type': 'application/json'})
     return render_template('hero_scraper.html', heroes=scrapedHeroes)
 
 
 
 @app.route("/scrapeStories")
 def scrapeStories():
+    stories_data = [
+        {'title': story.title, 'description': story.description,
+         'heroes': story.characters, 'text': story.text}
+        for story in scrapedStories
+    ]
+    requests.post(chromadb_service_url + '/pullscrapedStories', json=stories_data, headers={'Content-Type': 'application/json'})
     return render_template('story_scraper.html', stories=scrapedStories)
 
 

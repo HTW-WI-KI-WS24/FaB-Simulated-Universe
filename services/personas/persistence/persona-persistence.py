@@ -1,43 +1,95 @@
 import chromadb
 import requests
+import logging
 from flask import Flask, jsonify, request
 
 # from chromadb.utils import embedding_functions
 
 chroma_client = chromadb.Client()
-personaCollection = chroma_client.create_collection(name="personas")
-heroCollection = chroma_client.create_collection(name="heroes")
+heroesCollection = chroma_client.create_collection(name="heroes")
+storiesCollection = chroma_client.create_collection(name="stories")
+
 
 app = Flask(__name__)
-global last_id
+
 last_id = 0
 
+def get_next_id():
+    global last_id
+    last_id += 1
+    return last_id
 
 @app.route('/pullscrapedHeroes', methods=['POST'])
 def pullingScrapedHeroes():
-    global last_id
-    data = request.get_json()
-    if data:
+    try:
+        data = request.get_json()
+        if not data:
+            return "No data received", 400
+
         for hero in data:
-            last_id += 1  # Increment the last_id for each hero
-            personaCollection.add(
+            hero_id = get_next_id()
+            heroesCollection.add(
                 documents=[hero['text']],
                 metadatas=[{"name": hero['name'], "designation": hero['designation']}],
-                ids=[str(last_id)]  # Convert the ID to a string here
+                ids=[str(hero_id)]
             )
-            print(f"Name: {hero['name']}")
-            print(f"Designation: {hero['designation']}")
-            print(f"Text: {hero['text']}\n")
+            logging.info(f"Hero added with ID: {hero_id}")
+
         return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': data})
-    else:
-        return "No data received", 400
+    except Exception as e:
+        logging.error(f"Error while processing heroes: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/pullscrapedStories', methods=['POST'])
+def pullingScrapedStories():
+    try:
+        data = request.get_json()
+        if not data:
+            return "No data received", 400
+
+        for story in data:
+            story_id = get_next_id()
+            storiesCollection.add(
+                documents=[story['text']],
+                metadatas=[{"title": story['title'], "description": story['description'],
+                            'heroes': ', '.join(story['heroes']) if story['heroes'] else ""}],
+                ids=[str(story_id)]
+            )
+            logging.info(f"Story added with ID: {story_id}")
+
+        return jsonify({'message': 'storiesdata pulled successfully', 'storiesData': data})
+    except Exception as e:
+        logging.error(f"Error while processing stories: {e}")
+        return jsonify({'error': str(e)}), 500
+
+#@app.route('/pullscrapedHeroes', methods=['POST'])
+#def pullingScrapedHeroes():
+#    global last_id
+#    data = request.get_json()
+#    if data:
+ #       for hero in data:
+ #           last_id += 1  # Increment the last_id for each hero
+ #           personaCollection.add(
+ #               documents=[hero['text']],
+ #               metadatas=[{"name": hero['name'], "designation": hero['designation']}],
+ #               ids=[str(last_id)]  # Convert the ID to a string here
+ #           )
+#            print(f"Name: {hero['name']}")
+ #           print(f"Designation: {hero['designation']}")
+ #           print(f"Text: {hero['text']}\n")
+#        return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': data})
+#    else:
+#        return "No data received", 400
+
+
+
 
 
 @app.route('/createPersona', methods=['POST'])
 def createPersona():
     data = request.get_json()
     # Hinzufügen des Persona-Dokuments und seiner Embeddings zur ChromaDB-Collection
-    personaCollection.add(
+    heroesCollection.add(
         documents=[data['text']],
         metadatas=[{"name": data['name']}],
         ids=[]
@@ -45,20 +97,29 @@ def createPersona():
     return jsonify({'message': 'Persona created successfully', 'personaData': data})
 
 
-@app.route('/getAllPersonas', methods=['GET'])
-def getAllPersonas():
+@app.route('/getAllHeroes', methods=['GET'])
+def getAllHeroes():
     # Abfragen aller Personas in der Collection
-    personas = personaCollection.query(
+    heroes = heroesCollection.query(
         query_texts=["*"],
-        n_results=10
+        n_results=50
     )
-    return jsonify({'personas': personas})
+    return jsonify({'heroes': heroes})
+
+@app.route('/getAllStories', methods=['GET'])
+def getAllStories():
+    # Abfragen aller Personas in der Collection
+    stories = storiesCollection.query(
+        query_texts=["*"],
+        n_results=50
+    )
+    return jsonify({'stories': stories})
 
 
 @app.route('/getPersona/<name>', methods=['GET'])
 def getPersona(name):
     # Durchführen einer Abfrage basierend auf dem Namen der Persona
-    result = personaCollection.query(
+    result = heroesCollection.query(
         query_texts=[name],
         n_results=1
     )
