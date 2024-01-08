@@ -148,7 +148,6 @@ def getStoryWithHero(name):
 # deletemethoden noch implementieren
 @app.route('/deleteAllHeroes', methods=['GET'])
 def deleteAllHeroes():
-    )
     return jsonify({'message': 'heroes successfully deleted'})
 
 
