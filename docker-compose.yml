@@ -29,6 +29,8 @@ services:
       context: services/personas/persistence
     ports:
       - "8082:8082"
+    volumes:
+      - chromadb-data:/var/lib/chromadb
     networks:
       - backend
     depends_on:

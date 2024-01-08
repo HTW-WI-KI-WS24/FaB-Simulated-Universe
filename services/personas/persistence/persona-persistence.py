@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request
 # from chromadb.utils import embedding_functions
 
 chroma_client = chromadb.Client()
+chroma_client2 = chromadb.PersistentClient()
 heroesCollection = chroma_client.create_collection(name="heroes")
 storiesCollection = chroma_client.create_collection(name="stories")
 
@@ -62,28 +63,6 @@ def pullingScrapedStories():
         logging.error(f"Error while processing stories: {e}")
         return jsonify({'error': str(e)}), 500
 
-#@app.route('/pullscrapedHeroes', methods=['POST'])
-#def pullingScrapedHeroes():
-#    global last_id
-#    data = request.get_json()
-#    if data:
- #       for hero in data:
- #           last_id += 1  # Increment the last_id for each hero
- #           personaCollection.add(
- #               documents=[hero['text']],
- #               metadatas=[{"name": hero['name'], "designation": hero['designation']}],
- #               ids=[str(last_id)]  # Convert the ID to a string here
- #           )
-#            print(f"Name: {hero['name']}")
- #           print(f"Designation: {hero['designation']}")
- #           print(f"Text: {hero['text']}\n")
-#        return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': data})
-#    else:
-#        return "No data received", 400
-
-
-
-
 
 @app.route('/createPersona', methods=['POST'])
 def createPersona():
@@ -116,17 +95,33 @@ def getAllStories():
     return jsonify({'stories': stories})
 
 
-@app.route('/getPersona/<name>', methods=['GET'])
-def getPersona(name):
+@app.route('/getHero/<name>', methods=['GET'])
+def getHero(name):
     # Durchführen einer Abfrage basierend auf dem Namen der Persona
     result = heroesCollection.query(
         query_texts=[name],
         n_results=1
     )
     if result:
-        return jsonify({'persona': result[0]})
+        return jsonify({'hero': result[0]})
     else:
-        return jsonify({'message': 'Persona not found'}), 404
+        return jsonify({'message': 'hero not found'}), 404
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=8082)
+
+@app.route('/getStory/<title>', methods=['GET'])
+def getStory(title):
+    # Durchführen einer Abfrage basierend auf dem Namen der Persona
+    result = storiesCollection.query(
+        query_texts=[title],
+        n_results=1
+    )
+    if result:
+        return jsonify({'story': result[0]})
+    else:
+        return jsonify({'message': 'story not found'}), 404
 
 
 if __name__ == '__main__':
