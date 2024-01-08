@@ -10,15 +10,16 @@ chroma_client2 = chromadb.PersistentClient()
 heroesCollection = chroma_client.create_collection(name="heroes")
 storiesCollection = chroma_client.create_collection(name="stories")
 
-
 app = Flask(__name__)
 
 last_id = 0
+
 
 def get_next_id():
     global last_id
     last_id += 1
     return last_id
+
 
 @app.route('/pullscrapedHeroes', methods=['POST'])
 def pullingScrapedHeroes():
@@ -40,6 +41,7 @@ def pullingScrapedHeroes():
     except Exception as e:
         logging.error(f"Error while processing heroes: {e}")
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/pullscrapedStories', methods=['POST'])
 def pullingScrapedStories():
@@ -85,6 +87,7 @@ def getAllHeroes():
     )
     return jsonify({'heroes': heroes})
 
+
 @app.route('/getAllStories', methods=['GET'])
 def getAllStories():
     # Abfragen aller Personas in der Collection
@@ -110,6 +113,7 @@ def getHero(name):
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8082)
+
 
 @app.route('/getStory/<title>', methods=['GET'])
 def getStory(title):

@@ -159,7 +159,7 @@ def checkPersonaExperience():
     # Safe the generated Data in the database
     prompt = chat.choices[0].message.content
     data = {'name': name, 'biography': prompt}
-    requests.post(db_service_url, json=data)
+#    requests.post(db_service_url, json=data)
     # Return the generated article content
     flash("Persona: " + name + "\n" + chat.choices[0].message.content)
 
