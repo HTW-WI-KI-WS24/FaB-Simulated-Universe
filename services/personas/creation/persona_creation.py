@@ -29,13 +29,13 @@ scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
 
 @app.route("/scrapeHeroes")
 def scrapeHeroes():
-    for hero in scrapedHeroes:
-        name = hero['name']
-        designation = hero['designation']
-        text = hero['text']
-        data = {'name': name, 'designation': designation, 'text': text}
-        requests.post(chromadb_service_url, json=data)
+    heroes_data = [
+        {'name': hero['name'], 'designation': hero['designation'], 'text': hero['text']}
+        for hero in scrapedHeroes
+    ]
+    requests.post(chromadb_service_url, json=heroes_data, headers={'Content-Type': 'application/json'})
     return render_template('hero_scraper.html', heroes=scrapedHeroes)
+
 
 
 @app.route("/scrapeStories")

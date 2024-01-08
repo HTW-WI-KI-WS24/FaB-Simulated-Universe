@@ -2,16 +2,11 @@ import chromadb
 import requests
 from flask import Flask, jsonify, request
 
-# import services.personas.creation.update_heroes
-# import services.personas.creation.update_stories
 # from chromadb.utils import embedding_functions
 
 chroma_client = chromadb.Client()
 personaCollection = chroma_client.create_collection(name="personas")
 heroCollection = chroma_client.create_collection(name="heroes")
-
-# scrapedStories = update_stories.scrape_stories(stories_url)
-# scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
 
 app = Flask(__name__)
 global last_id
@@ -20,13 +15,15 @@ last_id = 0
 
 @app.route('/pullscrapedHeroes', methods=['POST'])
 def pullingScrapedHeroes():
+    global last_id
     data = request.get_json()
     if data:
         for hero in data:
+            last_id += 1  # Increment the last_id for each hero
             personaCollection.add(
                 documents=[hero['text']],
                 metadatas=[{"name": hero['name'], "designation": hero['designation']}],
-                ids=[last_id + 1]
+                ids=[str(last_id)]  # Convert the ID to a string here
             )
             print(f"Name: {hero['name']}")
             print(f"Designation: {hero['designation']}")
