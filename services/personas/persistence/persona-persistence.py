@@ -9,6 +9,7 @@ chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
 # chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
+# testCollection = chroma_client.get_or_create_collection(name="test", embedding_function=default_ef)
 
 app = Flask(__name__)
 
@@ -196,7 +197,7 @@ def updateHero():
     return jsonify({'message': 'Hero updated successfully'}), 200
 
 
-@app.route('/deleteAllHeroes', methods=['GET'])
+@app.route('/deleteAllHeroes', methods=['DELETE'])
 def deleteAllHeroes():
     fabCollection.delete(where={"kind": "hero"})
     return jsonify({'message': 'heroes successfully deleted'})
@@ -208,13 +209,13 @@ def deleteHeroByName(name):
     return jsonify({'message': 'hero successfully deleted'})
 
 
-@app.route('/deleteAllStories', methods=['GET'])
+@app.route('/deleteAllStories', methods=['DELETE'])
 def deleteAllStories():
     fabCollection.delete(where={"kind": "story"})
     return jsonify({'message': 'stories successfully deleted'})
 
 
-@app.route('/deleteCollection/<name>', methods=['GET'])
+@app.route('/deleteCollection/<name>', methods=['DELETE'])
 def deleteColletion(name):
     chroma_client.delete_collection(name=name)
     return jsonify({'message': 'collection ' + name + ' successfully deleted'})
@@ -253,6 +254,44 @@ def saveCollection(name):
     except Exception as e:
         current_app.logger.error(f"Error saving collection data: {str(e)}")
         return jsonify({'error': 'Failed to save collection data'}), 500
+
+
+@app.route('/importCollection/<name>', methods=['POST'])
+def loadCollection(name):
+    try:
+        # Set up the file path for loading
+        file_name = f"{name}_collection.json"
+        collections_folder = os.path.join(os.path.dirname(__file__), 'collections')
+        file_path = os.path.join(collections_folder, file_name)
+
+        # Load the data from the file
+        with open(file_path, 'r') as file:
+            collection_data = json.load(file)
+
+        # Extract the documents, IDs, and metadatas
+        documents = collection_data.get('documents', [])
+        metadatas = collection_data.get('metadatas', [])
+        ids = collection_data.get('ids', [])
+
+        # Check if data is valid
+        if not documents or not metadatas or not ids:
+            raise ValueError("Missing documents, metadatas, or ids in the collection data")
+
+        # Add the data to the collection
+        fabCollection.add(
+            documents=documents,
+            metadatas=metadatas,
+            ids=ids
+        )
+        return jsonify({'message': f'Successfully imported collection data from {file_name}'}), 200
+
+    except FileNotFoundError:
+        return jsonify({'error': 'Collection file not found'}), 404
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        current_app.logger.error(f"Error loading collection data: {str(e)}")
+        return jsonify({'error': 'Failed to load collection data'}), 500
 
 
 if __name__ == '__main__':
