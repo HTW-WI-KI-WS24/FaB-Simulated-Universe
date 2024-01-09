@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unfinished Heroes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Unfinished Heroes</h1>
+    {% if heroes %}
+    <form action="/generatePersonality" method="post">
+        <label for="heroSelect">Choose a Hero:</label>
+        <select name="heroId" id="heroSelect" onchange="updateHeroData(this)">
+            {% for hero in heroes %}
+            <option value="{{ hero.id }}">{{ hero.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="heroName" id="heroName">
+        <input type="hidden" name="heroText" id="heroText">
+        <input type="hidden" name="heroDesignation" id="heroDesignation">
+        <input type="submit" value="Generate Personality">
+    </form>
+    <script>
+        var heroes = {{ heroes|tojson }};
+        function updateHeroData(select) {
+            var selectedHero = heroes.find(h => h.id == select.value);
+            document.getElementById('heroName').value = selectedHero.name;
+            document.getElementById('heroText').value = selectedHero.text;
+            document.getElementById('heroDesignation').value = selectedHero.designation;
+        }
+        // Call updateHeroData on page load to initialize the hidden fields
+        window.onload = function() {
+            updateHeroData(document.getElementById('heroSelect'));
+        };
+    </script>
+    {% else %}
+    <p>No heroes with placeholder personalities found.</p>
+    {% endif %}
+</div>
+</body>
+</html>

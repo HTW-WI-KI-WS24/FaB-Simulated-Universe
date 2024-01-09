@@ -6,9 +6,8 @@ from chromadb.utils import embedding_functions
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
-chroma_client.delete_collection(name="heroes")
+# chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
-
 
 app = Flask(__name__)
 
@@ -41,8 +40,9 @@ def pullScrapedHeroes():
                 fabCollection.add(
                     documents=["The Heros name is " + hero['name'] + ". They have the following short description: " +
                                hero['text'] + ". Their Talent/Class is " + hero['designation'] + "."],
-                    metadatas=[{"kind": "hero", "name": hero['name'], "text": hero['text'], "designation": hero['designation'],
-                                "personality": "Placeholder"}],
+                    metadatas=[
+                        {"kind": "hero", "name": hero['name'], "text": hero['text'], "designation": hero['designation'],
+                         "personality": "Placeholder"}],
                     ids=[str(hero_id)]
                 )
                 logging.info(f"Hero added to ChromaDB Collection with ID: {hero_id}")
@@ -100,7 +100,7 @@ def createPersona():
         metadatas=[{"name": data['name']}],
         ids=[]
     )
-    return jsonify({'message': 'Persona created successfully', 'personaData': data})
+    return jsonify({'message': 'Hero created successfully', 'heroData': data})
 
 
 @app.route('/getAllHeroes', methods=['GET'])
@@ -110,6 +110,14 @@ def getAllHeroes():
         where={"kind": "hero"}
     )
     print(heroes)
+    return jsonify({'heroes': heroes})
+
+
+@app.route('/getAllPlaceholders', methods=['GET'])
+def getAllPlaceholders():
+    heroes = fabCollection.get(
+        where={"personality": "Placeholder"}
+    )
     return jsonify({'heroes': heroes})
 
 
@@ -157,6 +165,21 @@ def getStoryWithHero(name):
         return jsonify({'story': result})
     else:
         return jsonify({'message': 'story not found'}), 404
+
+
+@app.route('/updateHero', methods=['POST'])
+def updateHero():
+    data = request.get_json()
+    fabCollection.update(
+        ids=[data['id']],
+        documents=["The Heros name is " + data['name'] + ". They have the following short description: " +
+                   data['text'] + ". Their Talent/Class is " + data['designation'] +
+                   ". Their personality can be described as " + data['personality']],
+        metadatas=[
+            {"kind": "hero", "name": data['name'], "text": data['text'], "designation": data['designation'],
+             "personality": data['personality']}]
+    )
+    return
 
 
 # deletemethoden noch implementieren

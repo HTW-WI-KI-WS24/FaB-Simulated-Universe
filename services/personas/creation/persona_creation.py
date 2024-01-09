@@ -33,11 +33,13 @@ def scrapeHeroes():
             {'name': hero['name'], 'designation': hero['designation'], 'text': hero['text']}
             for hero in scrapedHeroes
         ]
-        requests.post(chromadb_service_url + '/pullscrapedHeroes', json=heroes_data, headers={'Content-Type': 'application/json'})
+        requests.post(chromadb_service_url + '/pullscrapedHeroes', json=heroes_data,
+                      headers={'Content-Type': 'application/json'})
         flash('Heroes scraped and updated successfully!')
         return render_template('hero_scraper.html', heroes=scrapedHeroes)
     else:
         return render_template('hero_scraper.html')
+
 
 @app.route("/scrapeStories", methods=['GET', 'POST'])
 def scrapeStories():
@@ -48,12 +50,12 @@ def scrapeStories():
              'heroes': story.characters, 'text': story.text}
             for story in scrapedStories
         ]
-        requests.post(chromadb_service_url + '/pullscrapedStories', json=stories_data, headers={'Content-Type': 'application/json'})
+        requests.post(chromadb_service_url + '/pullscrapedStories', json=stories_data,
+                      headers={'Content-Type': 'application/json'})
         flash('Stories scraped and updated successfully!')
         return render_template('story_scraper.html', stories=scrapedStories)
     else:
         return render_template('story_scraper.html')
-
 
 
 @app.route("/")
@@ -165,7 +167,7 @@ def checkPersonaExperience():
     # Safe the generated Data in the database
     prompt = chat.choices[0].message.content
     data = {'name': name, 'biography': prompt}
-#    requests.post(db_service_url, json=data)
+    #    requests.post(db_service_url, json=data)
     # Return the generated article content
     flash("Persona: " + name + "\n" + chat.choices[0].message.content)
 
