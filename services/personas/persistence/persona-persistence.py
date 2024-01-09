@@ -1,7 +1,7 @@
+import os
+
 import chromadb
-import requests
-import logging
-from flask import Flask, jsonify, request, current_app
+from flask import Flask, jsonify, request, current_app, send_from_directory
 from chromadb.utils import embedding_functions
 import json
 
@@ -46,7 +46,8 @@ def pullScrapedHeroes():
                          "personality": "Placeholder"}],
                     ids=[str(hero_id)]
                 )
-                current_app.logger.info(f"Hero added to ChromaDB Collection with ID: {hero_id} and Name: {hero['name']}")
+                current_app.logger.info(
+                    f"Hero added to ChromaDB Collection with ID: {hero_id} and Name: {hero['name']}")
 
         return jsonify({'message': 'Hero data pulled successfully', 'heroesData': data})
     except Exception as e:
@@ -136,6 +137,7 @@ def getHero(name):
     # Durchführen einer Abfrage basierend auf dem Namen der Persona
     result = fabCollection.get(
         where={'name': name},
+        include=['embeddings', 'documents', 'metadatas']
     )
     if result:
         return jsonify({'hero': result})
@@ -148,6 +150,7 @@ def getHero(name):
 def getStory(title):
     result = fabCollection.get(
         where={'title': title},
+        include=['embeddings', 'documents', 'metadatas']
     )
     if result:
         return jsonify({'story': result})
@@ -158,7 +161,8 @@ def getStory(title):
 @app.route('/getStoriesWithHero/<name>', methods=['GET'])
 def getStoryWithHero(name):
     result = fabCollection.get(
-        where={name.lower(): name}
+        where={name.lower(): name},
+        include=['embeddings', 'documents', 'metadatas']
     )
     if result:
         return jsonify({'stories': result})
@@ -192,11 +196,11 @@ def updateHero():
     return jsonify({'message': 'Hero updated successfully'}), 200
 
 
-
 @app.route('/deleteAllHeroes', methods=['GET'])
 def deleteAllHeroes():
     fabCollection.delete(where={"kind": "hero"})
     return jsonify({'message': 'heroes successfully deleted'})
+
 
 @app.route('/deleteHeroByName/<name>', methods=['DELETE'])
 def deleteHeroByName(name):
@@ -210,24 +214,45 @@ def deleteAllStories():
     return jsonify({'message': 'stories successfully deleted'})
 
 
+@app.route('/deleteCollection/<name>', methods=['GET'])
+def deleteColletion(name):
+    chroma_client.delete_collection(name=name)
+    return jsonify({'message': 'collection ' + name + ' successfully deleted'})
+
+
 @app.route('/getCollection/<name>', methods=['GET'])
 def getCollection(name):
     return jsonify({'collection': chroma_client.get_collection(name=name, embedding_function=default_ef).get()})
 
 
-@app.route('/saveCollection/<name>', methods=['GET'])
+@app.route('/exportCollection/<name>', methods=['GET'])
 def saveCollection(name):
+    try:
+        # Fetch the collection data
+        collection_response = chroma_client.get_collection(name=name).get()
+        current_app.logger.info(f"Collection response: {collection_response}")
 
-    collection_data = getCollection(name).get_json()
-    file_name = f"{name}_collectionData.json"
-    with open(file_name, 'w') as file:
-        json.dump(collection_data, file)
-    return jsonify({'message': f'Daten wurden in {file_name} gespeichert'})
+        # Assuming collection_response is the actual data you want to save:
+        collection_data = collection_response
 
-@app.route('/deleteCollection/<name>', methods=['GET'])
-def deleteColletion(name):
-    chroma_client.delete_collection(name=name)
-    return jsonify({'message': 'collection ' + name + ' successfully deleted'})
+        # Set up the file path for saving
+        file_name = f"{name}_collection.json"
+        collections_folder = os.path.join(os.path.dirname(__file__), 'collections')
+        if not os.path.exists(collections_folder):
+            os.makedirs(collections_folder)
+        file_path = os.path.join(collections_folder, file_name)
+
+        # Save the data to a file
+        with open(file_path, 'w') as file:
+            json.dump(collection_data, file, indent=4)
+
+        # Send the file for download
+        jsonify({'message': 'Data downloaded. Check your Downloads Folder and manually put the file into the '
+                            'collections folder located in the persistence directory of this project.'})
+        return send_from_directory(directory=collections_folder, path=file_name, as_attachment=True)
+    except Exception as e:
+        current_app.logger.error(f"Error saving collection data: {str(e)}")
+        return jsonify({'error': 'Failed to save collection data'}), 500
 
 
 if __name__ == '__main__':
