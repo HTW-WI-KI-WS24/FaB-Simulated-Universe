@@ -10,15 +10,15 @@ client = OpenAI(
 app = Flask(__name__)
 app.secret_key = "password123"
 
-url = 'http://persona-persistence:8082/getAllPersonas'
-getPersonaUrl = 'http://persona-persistence:8082/getPersona/'
+chromadb_service_url = 'http://persona-persistence:8082/getAllHeroes'
+getPersonaUrl = 'http://persona-persistence:8082/getHero/'
 personaList = []
 
 
 @app.route('/')
 def getPersonaList():
-    global url
-    response = requests.get(url)
+    global chromadb_service_url
+    response = requests.get(chromadb_service_url)
 
     if response.status_code == 200:
 

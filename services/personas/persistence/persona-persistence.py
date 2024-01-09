@@ -2,20 +2,13 @@ import chromadb
 import requests
 import logging
 from flask import Flask, jsonify, request
-
-
-# from chromadb.utils import embedding_functions
-
-#chroma_client = chromadb.Client()
+from chromadb.utils import embedding_functions
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
-heroesCollection = chroma_client.get_collection(name="heroes")
-if heroesCollection is None:
-    heroesCollection = chroma_client.create_collection(name="heroes")
+default_ef = embedding_functions.DefaultEmbeddingFunction()
+chroma_client.delete_collection(name="heroes")
+fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
 
-storiesCollection = chroma_client.get_collection(name="stories2")
-if storiesCollection is None:
-    storiesCollection = chroma_client.create_collection(name="stories2")
 
 app = Flask(__name__)
 
@@ -36,15 +29,25 @@ def pullScrapedHeroes():
             return "No data received", 400
 
         for hero in data:
-            hero_id = get_next_id()
-            heroesCollection.add(
-                documents=[hero['text']],
-                metadatas=[{"name": hero['name'], "designation": hero['designation']}],
-                ids=[str(hero_id)]
+            ### check if already exists
+            results = fabCollection.get(
+                where={"text": hero['text']},
+                include=["metadatas"]
             )
-            logging.info(f"Hero added with ID: {hero_id}")
+            if len(results["ids"]) > 0:
+                print("Hero already exists. Skipping...")
+            else:
+                hero_id = get_next_id()
+                fabCollection.add(
+                    documents=["The Heros name is " + hero['name'] + ". They have the following short description: " +
+                               hero['text'] + ". Their Talent/Class is " + hero['designation'] + "."],
+                    metadatas=[{"kind": "hero", "name": hero['name'], "text": hero['text'], "designation": hero['designation'],
+                                "personality": "Placeholder"}],
+                    ids=[str(hero_id)]
+                )
+                logging.info(f"Hero added to ChromaDB Collection with ID: {hero_id}")
 
-        return jsonify({'message': 'heroesdata pulled successfully', 'heroesData': data})
+        return jsonify({'message': 'Hero data pulled successfully', 'heroesData': data})
     except Exception as e:
         logging.error(f"Error while processing heroes: {e}")
         return jsonify({'error': str(e)}), 500
@@ -58,26 +61,41 @@ def pullScrapedStories():
             return "No data received", 400
 
         for story in data:
-            story_id = get_next_id()
-            storiesCollection.add(
-                documents=[story['text']],
-                metadatas=[{"title": story['title'], "description": story['description'],
-                            'heroes': ', '.join(story['heroes']) if story['heroes'] else ""}],
-                ids=[str(story_id)]
+            ### check if already exists
+            results = fabCollection.get(
+                where={"title": story['title']},
+                include=["metadatas"]
             )
-            logging.info(f"Story added with ID: {story_id}")
+            if len(results["ids"]) > 0:
+                print("Story already exists. Skipping...")
+            else:
+                story_id = get_next_id()
+                # Prepare metadata with title and description
+                metadata = {"kind": "story", "title": story['title'], "description": story['description']}
+                # Add each hero as a key-value pair in metadata
+                if 'heroes' in story:
+                    for hero in story['heroes']:
+                        metadata[hero.lower()] = hero
 
-        return jsonify({'message': 'storiesdata pulled successfully', 'storiesData': data})
+                # Add the story with updated metadata to fabCollection
+                fabCollection.add(
+                    documents=[story['text']],
+                    metadatas=[metadata],
+                    ids=[str(story_id)]
+                )
+                logging.info(f"Story added with ID: {story_id}")
+
+        return jsonify({'message': 'Story data pulled successfully', 'storiesData': data})
     except Exception as e:
         logging.error(f"Error while processing stories: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/createPersona', methods=['POST'])
+@app.route('/createHero', methods=['POST'])
 def createPersona():
     data = request.get_json()
     # Hinzufügen des Persona-Dokuments und seiner Embeddings zur ChromaDB-Collection
-    heroesCollection.add(
+    fabCollection.add(
         documents=[data['text']],
         metadatas=[{"name": data['name']}],
         ids=[]
@@ -88,19 +106,18 @@ def createPersona():
 @app.route('/getAllHeroes', methods=['GET'])
 def getAllHeroes():
     # Abfragen aller Personas in der Collection
-    heroes = heroesCollection.query(
-        query_texts=["*"],
-        n_results=99
+    heroes = fabCollection.get(
+        where={"kind": "hero"}
     )
+    print(heroes)
     return jsonify({'heroes': heroes})
 
 
 @app.route('/getAllStories', methods=['GET'])
 def getAllStories():
     # Abfragen aller Personas in der Collection
-    stories = storiesCollection.query(
-        query_texts=["*"],
-        n_results=99
+    stories = fabCollection.get(
+        where={"kind": "story"}
     )
     return jsonify({'stories': stories})
 
@@ -108,10 +125,8 @@ def getAllStories():
 @app.route('/getHero/<name>', methods=['GET'])
 def getHero(name):
     # Durchführen einer Abfrage basierend auf dem Namen der Persona
-    result = heroesCollection.query(
-        query_texts=["*"],
+    result = fabCollection.get(
         where={'name': name},
-        n_results=99
     )
     if result:
         return jsonify({'hero': result})
@@ -122,10 +137,8 @@ def getHero(name):
 
 @app.route('/getStory/<title>', methods=['GET'])
 def getStory(title):
-    result = storiesCollection.query(
-        query_texts=["*"],
+    result = fabCollection.get(
         where={'title': title},
-        n_results=99
     )
     if result:
         return jsonify({'story': result})
@@ -135,7 +148,7 @@ def getStory(title):
 
 @app.route('/getStoryWithHero/<name>', methods=['GET'])
 def getStoryWithHero(name):
-    result = storiesCollection.query(
+    result = fabCollection.query(
         query_texts=["*"],
         where={'heroes': {'$eq': name}},
         n_results=99
@@ -144,6 +157,7 @@ def getStoryWithHero(name):
         return jsonify({'story': result})
     else:
         return jsonify({'message': 'story not found'}), 404
+
 
 # deletemethoden noch implementieren
 @app.route('/deleteAllHeroes', methods=['GET'])
@@ -154,6 +168,7 @@ def deleteAllHeroes():
 @app.route('/deleteAllStories', methods=['GET'])
 def deleteAllStories():
     return jsonify({'message': 'stories successfully deleted'})
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8082)

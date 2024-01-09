@@ -21,33 +21,39 @@ persona_introduction = ""
 persona_writing = ""
 name = ""
 messages = []
-# db_service_url = 'http://persona-persistence:8082/createPersona'
+# db_service_url = 'http://persona-persistence:8082/createHero'
 chromadb_service_url = 'http://persona-persistence:8082'
 
-scrapedStories = update_stories.scrape_stories(stories_url)
-scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
 
-
-@app.route("/scrapeHeroes")
+@app.route("/scrapeHeroes", methods=['GET', 'POST'])
 def scrapeHeroes():
-    heroes_data = [
-        {'name': hero['name'], 'designation': hero['designation'], 'text': hero['text']}
-        for hero in scrapedHeroes
-    ]
-    requests.post(chromadb_service_url + '/pullscrapedHeroes', json=heroes_data, headers={'Content-Type': 'application/json'})
-    return render_template('hero_scraper.html', heroes=scrapedHeroes)
+    if request.method == 'POST':
+        scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
+        heroes_data = [
+            {'name': hero['name'], 'designation': hero['designation'], 'text': hero['text']}
+            for hero in scrapedHeroes
+        ]
+        requests.post(chromadb_service_url + '/pullscrapedHeroes', json=heroes_data, headers={'Content-Type': 'application/json'})
+        flash('Heroes scraped and updated successfully!')
+        return render_template('hero_scraper.html', heroes=scrapedHeroes)
+    else:
+        return render_template('hero_scraper.html')
 
-
-
-@app.route("/scrapeStories")
+@app.route("/scrapeStories", methods=['GET', 'POST'])
 def scrapeStories():
-    stories_data = [
-        {'title': story.title, 'description': story.description,
-         'heroes': story.characters, 'text': story.text}
-        for story in scrapedStories
-    ]
-    requests.post(chromadb_service_url + '/pullscrapedStories', json=stories_data, headers={'Content-Type': 'application/json'})
-    return render_template('story_scraper.html', stories=scrapedStories)
+    if request.method == 'POST':
+        scrapedStories = update_stories.scrape_stories(stories_url)
+        stories_data = [
+            {'title': story.title, 'description': story.description,
+             'heroes': story.characters, 'text': story.text}
+            for story in scrapedStories
+        ]
+        requests.post(chromadb_service_url + '/pullscrapedStories', json=stories_data, headers={'Content-Type': 'application/json'})
+        flash('Stories scraped and updated successfully!')
+        return render_template('story_scraper.html', stories=scrapedStories)
+    else:
+        return render_template('story_scraper.html')
+
 
 
 @app.route("/")
