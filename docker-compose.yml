@@ -13,6 +13,8 @@ services:
       - backend
     depends_on:
       - chroma_db
+    env_file:
+      - .env
 
   persona-conversation:
     build:
@@ -23,6 +25,8 @@ services:
       - backend
     depends_on:
       - chroma_db
+    env_file:
+      - .env
 
   persona-persistence:
     build:
@@ -35,6 +39,8 @@ services:
       - backend
     depends_on:
       - chroma_db
+    env_file:
+      - .env
 
   chroma_db:
     image: chroma:latest

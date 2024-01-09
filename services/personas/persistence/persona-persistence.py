@@ -1,12 +1,13 @@
 import chromadb
 import requests
 import logging
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, current_app
 from chromadb.utils import embedding_functions
 import json
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
+# chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
 
 app = Flask(__name__)
@@ -45,11 +46,11 @@ def pullScrapedHeroes():
                          "personality": "Placeholder"}],
                     ids=[str(hero_id)]
                 )
-                logging.info(f"Hero added to ChromaDB Collection with ID: {hero_id}")
+                current_app.logger.info(f"Hero added to ChromaDB Collection with ID: {hero_id} and Name: {hero['name']}")
 
         return jsonify({'message': 'Hero data pulled successfully', 'heroesData': data})
     except Exception as e:
-        logging.error(f"Error while processing heroes: {e}")
+        current_app.logger.error(f"Error while processing heroes: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -83,11 +84,11 @@ def pullScrapedStories():
                     metadatas=[metadata],
                     ids=[str(story_id)]
                 )
-                logging.info(f"Story added with ID: {story_id}")
+                current_app.logger.info(f"Story added with ID: {story_id} and Title: {story['title']}")
 
         return jsonify({'message': 'Story data pulled successfully', 'storiesData': data})
     except Exception as e:
-        logging.error(f"Error while processing stories: {e}")
+        current_app.logger.error(f"Error while processing stories: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -154,15 +155,13 @@ def getStory(title):
         return jsonify({'message': 'story not found'}), 404
 
 
-@app.route('/getStoryWithHero/<name>', methods=['GET'])
+@app.route('/getStoriesWithHero/<name>', methods=['GET'])
 def getStoryWithHero(name):
-    result = fabCollection.query(
-        query_texts=["*"],
-        where={'heroes': {'$eq': name}},
-        n_results=99
+    result = fabCollection.get(
+        where={name.lower(): name}
     )
     if result:
-        return jsonify({'story': result})
+        return jsonify({'stories': result})
     else:
         return jsonify({'message': 'story not found'}), 404
 
@@ -170,22 +169,39 @@ def getStoryWithHero(name):
 @app.route('/updateHero', methods=['POST'])
 def updateHero():
     data = request.get_json()
+    # Normalize line endings in the personality text
+    personality_clean = data['personality'].replace('\r\n', ' ')
+
     fabCollection.update(
         ids=[data['id']],
-        documents=["The Heros name is " + data['name'] + ". They have the following short description: " +
-                   data['text'] + ". Their Talent/Class is " + data['designation'] +
-                   ". Their personality can be described as " + data['personality']],
+        documents=[
+            "The Hero's name is " + data['name'] + ". They have the following short description: " +
+            data['text'] + ". Their Talent/Class is " + data['designation'] +
+            ". " + personality_clean  # Use the cleaned personality text here
+        ],
         metadatas=[
-            {"kind": "hero", "name": data['name'], "text": data['text'], "designation": data['designation'],
-             "personality": data['personality']}]
+            {
+                "kind": "hero",
+                "name": data['name'],
+                "text": data['text'],
+                "designation": data['designation'],
+                "personality": "added"
+            }
+        ]
     )
-    return
+    return jsonify({'message': 'Hero updated successfully'}), 200
+
 
 
 @app.route('/deleteAllHeroes', methods=['GET'])
 def deleteAllHeroes():
     fabCollection.delete(where={"kind": "hero"})
     return jsonify({'message': 'heroes successfully deleted'})
+
+@app.route('/deleteHeroByName/<name>', methods=['DELETE'])
+def deleteHeroByName(name):
+    fabCollection.delete(where={"name": name})
+    return jsonify({'message': 'hero successfully deleted'})
 
 
 @app.route('/deleteAllStories', methods=['GET'])

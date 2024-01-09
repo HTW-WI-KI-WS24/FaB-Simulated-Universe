@@ -39,7 +39,7 @@
         <label for="heroSelect">Choose a Hero:</label>
         <select name="heroId" id="heroSelect" onchange="updateHeroData(this)">
             {% for hero in heroes %}
-            <option value="{{ hero.id }}">{{ hero.name }}</option>
+            <option value="{{ hero.id }}" {% if loop.first %}selected{% endif %}>{{ hero.name }}</option>
             {% endfor %}
         </select>
         <input type="hidden" name="heroName" id="heroName">
@@ -49,20 +49,41 @@
     </form>
     <script>
         var heroes = {{ heroes|tojson }};
+        console.log("Heroes array:", heroes);  // Check the heroes data
+
         function updateHeroData(select) {
-            var selectedHero = heroes.find(h => h.id == select.value);
-            document.getElementById('heroName').value = selectedHero.name;
-            document.getElementById('heroText').value = selectedHero.text;
-            document.getElementById('heroDesignation').value = selectedHero.designation;
+            console.log("Newly selected hero ID:", select.value); // Log the new selected value
+
+            var selectedHero = heroes.find(h => h.id ? h.id.toString() === select.value.toString() : false);
+
+            // Check if selectedHero is defined
+            if (selectedHero) {
+                document.getElementById('heroName').value = selectedHero.name;
+                document.getElementById('heroText').value = selectedHero.text;
+                document.getElementById('heroDesignation').value = selectedHero.designation;
+
+                // Debugging: Log the values being set
+                console.log("Selected Hero Name:", selectedHero.name);
+                console.log("Selected Hero Text:", selectedHero.text);
+                console.log("Selected Hero Designation:", selectedHero.designation);
+            } else {
+                console.log("No hero found with the selected ID");
+                console.log("Hero Select Value:", select.value); // Log the select value for analysis
+            }
         }
-        // Call updateHeroData on page load to initialize the hidden fields
+
         window.onload = function() {
-            updateHeroData(document.getElementById('heroSelect'));
+            var heroSelect = document.getElementById('heroSelect');
+            if (heroSelect && heroSelect.options.length > 0) {
+                console.log("Options:", Array.from(heroSelect.options).map(opt => opt.value)); // Log option values
+                updateHeroData(heroSelect);
+            }
         };
     </script>
-    {% else %}
-    <p>No heroes with placeholder personalities found.</p>
-    {% endif %}
+    </div>
+{% else %}
+<p>No heroes with placeholder personalities found.</p>
+{% endif %}
 </div>
 </body>
 </html>
