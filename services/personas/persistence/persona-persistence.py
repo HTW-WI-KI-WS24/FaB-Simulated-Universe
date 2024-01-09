@@ -3,10 +3,10 @@ import requests
 import logging
 from flask import Flask, jsonify, request
 from chromadb.utils import embedding_functions
+import json
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
-# chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
 
 app = Flask(__name__)
@@ -182,86 +182,37 @@ def updateHero():
     return
 
 
-# deletemethoden noch implementieren
 @app.route('/deleteAllHeroes', methods=['GET'])
 def deleteAllHeroes():
+    fabCollection.delete(where={"kind": "hero"})
     return jsonify({'message': 'heroes successfully deleted'})
 
 
 @app.route('/deleteAllStories', methods=['GET'])
 def deleteAllStories():
+    fabCollection.delete(where={"kind": "story"})
     return jsonify({'message': 'stories successfully deleted'})
+
+
+@app.route('/getCollection/<name>', methods=['GET'])
+def getCollection(name):
+    return jsonify({'collection': chroma_client.get_collection(name=name, embedding_function=default_ef).get()})
+
+
+@app.route('/saveCollection/<name>', methods=['GET'])
+def saveCollection(name):
+
+    collection_data = getCollection(name).get_json()
+    file_name = f"{name}_collectionData.json"
+    with open(file_name, 'w') as file:
+        json.dump(collection_data, file)
+    return jsonify({'message': f'Daten wurden in {file_name} gespeichert'})
+
+@app.route('/deleteCollection/<name>', methods=['GET'])
+def deleteColletion(name):
+    chroma_client.delete_collection(name=name)
+    return jsonify({'message': 'collection ' + name + ' successfully deleted'})
 
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8082)
-
-"""
-
-
-# embeddings?? -> noch nicht angeschaut
-hero_embeddings = [
-    [1.2, 2.3, 4.5],  # Vektorrepräsentation für Hero 1??
-    [6.7, 8.2, 9.2]   # Vektorrepräsentation für Hero 2??
-]
-
-hero_documents = [
-    "Arakni ,No-one escapes Southmaw. No-one except Patient 1413.The feral orphan, taken and tormented to the point of no return. The silent prodigy transformed into an expression of graceful violence.."    # Beschreibung für Charakter 1
-    "Data Doll, Buried deep beneath Iron Assembly headquarters there lies a vast, secret chamber. Inside rests Data Doll, a steam-powered automaton delicately suspended by a web of wires and hoses..."  # Beschreibung für Charakter 2
-]
-
-hero_metadata = [
-    {"name": "Arakni", "titel": "Solitary Confinement", "typ": "Assassin"},  # Metadaten für Charakter 1
-    {"name": "Data Doll", "titel": "MKII", "typ": "Mechanologist"}  # Metadaten für Charakter 2
-]
-
-hero_ids = ["hero1", "hero2"]  # Eindeutige IDs für die Charaktere
-
-
-collection.add(
-    embeddings=hero_embeddings,
-    documents=hero_documents,
-    metadatas=hero_metadata,
-    ids=hero_ids
-)
-
-collection = dbClient.create_collection(name="stories")
-
-
-
-
-
-
-
-# Beispielabfrage
-abfrage_text = "Arakni"
-abfrage_ergebnisse = collection.query(
-    query_texts=[abfrage_text],
-    n_results=2
-)
-
-# Ergebnisse der Abfrage
-for result in abfrage_ergebnisse:
-    print(f"ID: {result['id']}, Dokument: {result['document']}, Score: {result['score']}")
-
-
-#class Hero:
-#   def __init__(self, id, name, beschreibung, vektor):
-#        self.id = id
-#        self.name = name
-#        self.beschreibung = beschreibung
-#        self.vektor = vektor
-
-#def addHero(hero):
-#    dbClient.insert(hero.id, hero.vektor, hero.__dict__)
-
-#def retrieveHero(name):
-#    ergebnis = dbClient.search("name:{}".format(name))
-#    return ergebnis
-
-#def updateHero(id, newData):
-#    dbClient.update(id, newData)
-
-#def deleteHero(id):
-#    dbClient.delete(id)
-"""
