@@ -58,7 +58,7 @@ def scrapeStories():
         return render_template('story_scraper.html')
 
 
-@app.route("/")
+@app.route("/enterName")
 def index():
     flash("What's the Heros name?")
     return render_template("0_enter_name.html")

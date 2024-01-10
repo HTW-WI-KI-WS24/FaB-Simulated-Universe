@@ -17,7 +17,7 @@ getPersonaUrl = 'http://persona-persistence:8082/getHero/'
 personaList = []
 
 
-@app.route('/')
+@app.route('/showPlaceholders')
 def showPlaceholderPersonalities():
     response = requests.get(chromadb_service_url + "/getAllPlaceholders")
     if response.status_code == 200:
