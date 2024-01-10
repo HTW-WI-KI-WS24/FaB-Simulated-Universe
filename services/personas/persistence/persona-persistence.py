@@ -159,12 +159,12 @@ def getInteractingHeroes():
             result = fabCollection.query(query_texts=[promt])
             current_app.logger.info(f"Query-promt sent to DB: {promt}")
             if result:
-                return jsonify({'interaction between ' + heroes: result})
+                return jsonify({'interactions between: ' + heroes: result})
             else:
                 print("no result")
                 return jsonify({'error': 'The query call returned no result'}), 404
         except Exception as e:
-            error_message = f"Query-request to GPT API failed: {e}"
+            error_message = f"Query-request to DB failed: {e}"
             current_app.logger.error(error_message)
             return jsonify({'error': error_message}), 500
     else:
