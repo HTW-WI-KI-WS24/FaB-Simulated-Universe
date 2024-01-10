@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}Approve Personality{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- Any additional head elements specific to approvePersonality.html can be added here -->
+{% endblock %}
+
+{% block content %}
+<!-- Main content of approvePersonality.html -->
+<h1>Approve Personality</h1>
+<p>Generated Personality: {{ personality }}</p>
+
+<!-- Form for approving the generated personality -->
+<form action="/updateHero" method="post">
+    <input type="hidden" name="heroId" value="{{ hero.id }}">
+    <input type="hidden" name="heroName" value="{{ hero.name }}">
+    <input type="hidden" name="heroText" value="{{ hero.text }}">
+    <input type="hidden" name="heroDesignation" value="{{ hero.designation }}">
+    <input type="hidden" name="personality" value="{{ personality }}">
+    <input type="submit" value="Approve">
+</form>
+
+<!-- Form for regenerating the personality -->
+<form action="/generatePersonality" method="post">
+    <input type="hidden" name="heroId" value="{{ hero_id }}">
+    <input type="submit" value="Regenerate">
+</form>
+{% endblock %}
+
+{% block footer %}
+{{ super() }}
+<!-- Additional custom footer elements specific to approvePersonality.html can be added here -->
+{% endblock %}
+

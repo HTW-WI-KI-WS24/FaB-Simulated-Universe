@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block title %}Bio Stories{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+        align-self: center;
+        width: 80%; /* Adjust the width as needed */
+        max-width: 500px; /* Set a max-width for larger screens */
+        overflow: visible;
+        margin: auto; /* Center the container */
+    }
+    .message-box {
+        background-color: #e7f3fe; /* Light blue background for messages */
+        border-left: 4px solid #2196F3; /* Blue border on the left for highlighting */
+        padding: 10px;
+        margin-bottom: 10px; /* Spacing between messages */
+        text-align: left;
+        box-sizing: border-box;
+    }
+    input[type="text"], input[type="submit"], textarea {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        width: calc(100% - 20px); /* Full width within the container */
+    }
+    input[type="submit"] {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+    input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+    textarea {
+        resize: vertical; /* Allows the user to resize the textarea vertically */
+        font-family: Arial, sans-serif; /* To match the font style of the other inputs */
+        font-size: 1rem; /* Standard font size for text inputs */
+    }
+    /* Additional specific styles can be added here */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="characterTraits" method="post">
+        {% for message in get_flashed_messages() %}
+        <div class="message-box">
+            {{ message|replace('\n', '</p><p>')|safe }}
+        </div>
+        {% endfor %}
+        <br>
+        <textarea name="user_input" id="user_input" rows="4" cols="50"></textarea>
+        <input type="submit" value="SEND" id="send">
+    </form>
+</div>
+{% endblock %}

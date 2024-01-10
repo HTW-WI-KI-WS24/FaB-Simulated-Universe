@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+    {% block head %}
+    <!-- Link to the stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Title can be customized in child templates -->
+    <title>{% block title %}{% endblock %} - My Webpage</title>
+    {% endblock %}
+</head>
+<body>
+<!-- Main content block, to be filled by child templates -->
+<div id="content">{% block content %}{% endblock %}</div>
+
+<!-- Footer block, can also be customized or extended in child templates -->
+<div id="footer">
+    {% block footer %}
+    <!-- Default footer content -->
+    &copy; Copyright 2023 by <a href="http://yourdomain.com/">Your Name</a>.
+    {% endblock %}
+</div>
+</body>
+</html>

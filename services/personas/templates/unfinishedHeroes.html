@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}Unfinished Heroes{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .container {
+        width: 80%;
+        margin: 20px auto;
+        background: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #333;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #eee;
+    }
+    /* Weitere spezifische Stile für unfinishedHeroes.html können hier hinzugefügt werden */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Unfinished Heroes</h1>
+    {% if heroes %}
+    <form action="/generatePersonality" method="post">
+        <label for="heroSelect">Wähle einen Helden:</label>
+        <select name="heroId" id="heroSelect" onchange="updateHeroData(this)">
+            {% for hero in heroes %}
+            <option value="{{ hero.id }}" {% if loop.first %}selected{% endif %}>{{ hero.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="heroName" id="heroName">
+        <input type="hidden" name="heroText" id="heroText">
+        <input type="hidden" name="heroDesignation" id="heroDesignation">
+        <input type="submit" value="Generiere Persönlichkeit">
+    </form>
+    <script>
+        // JavaScript für die Handhabung der Heldendaten geht hier
+    </script>
+    {% else %}
+    <p>Keine Helden mit Platzhalter-Persönlichkeiten gefunden.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

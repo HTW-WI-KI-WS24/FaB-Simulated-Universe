@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Title{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+        width: 80%;
+        max-width: 500px;
+        overflow: visible;
+        margin: 20px auto; /* Center the container */
+    }
+    .message-box {
+        background-color: #e7f3fe;
+        border-left: 4px solid #2196F3;
+        padding: 10px;
+        margin-bottom: 10px; /* Spacing between messages */
+        text-align: left;
+        box-sizing: border-box;
+    }
+    /* Additional specific styles can be added here */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="" method="post">
+        {% for message in get_flashed_messages() %}
+        <div class="message-box">
+            <p>{{ message|replace('\n', '</p><p>')|safe }}</p>
+        </div>
+        {% endfor %}
+        <!-- Add form inputs or buttons here as needed -->
+    </form>
+</div>
+{% endblock %}
