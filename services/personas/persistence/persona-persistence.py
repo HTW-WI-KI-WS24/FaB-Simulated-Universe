@@ -10,7 +10,6 @@ default_ef = embedding_functions.DefaultEmbeddingFunction()
 #chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
 # testCollection = chroma_client.get_or_create_collection(name="test", embedding_function=default_ef)
-
 app = Flask(__name__)
 
 last_id = 0
