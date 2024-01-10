@@ -1,4 +1,5 @@
 import os
+import uuid
 
 import chromadb
 from flask import Flask, jsonify, request, current_app, send_from_directory
@@ -22,7 +23,44 @@ def get_next_id():
     return last_id
 
 
-@app.route('/pullscrapedHeroes', methods=['POST'])
+def generate_uuid(name):
+    # Generate a UUID based on the SHA-1 hash of a namespace identifier and a name
+    name_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, name)
+    return str(name_uuid)
+
+
+@app.route('/pullScrapedWorld', methods=['POST'])
+def pullScrapedWorld():
+    try:
+        data = request.get_json()
+        if not data:
+            return "No data received", 400
+
+        for region in data:
+            ### check if already exists
+            results = fabCollection.get(
+                where={"text": region['text']},
+                include=["metadatas"]
+            )
+            if len(results["ids"]) > 0:
+                print("Region Data already exists. Skipping...")
+            else:
+                regionData_id = generate_uuid(region['text'])
+                fabCollection.add(
+                    documents=[region['text']],
+                    metadatas=[{"kind": "regionData", "region": region['name']}],
+                    ids=[regionData_id]
+                )
+                current_app.logger.info(
+                    f"Region Data added to ChromaDB Collection with UUID: {regionData_id} from Region: {region['name']} "
+                    f"and Text: {region['text']}")
+        return jsonify({'message': 'World data received successfully', 'worldData': data})
+    except Exception as e:
+        current_app.logger.error(f"Error while processing World Data: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/pullScrapedHeroes', methods=['POST'])
 def pullScrapedHeroes():
     try:
         data = request.get_json()
@@ -50,13 +88,13 @@ def pullScrapedHeroes():
                 current_app.logger.info(
                     f"Hero added to ChromaDB Collection with ID: {hero_id} and Name: {hero['name']}")
 
-        return jsonify({'message': 'Hero data pulled successfully', 'heroesData': data})
+        return jsonify({'message': 'Hero data received successfully', 'heroesData': data})
     except Exception as e:
         current_app.logger.error(f"Error while processing heroes: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/pullscrapedStories', methods=['POST'])
+@app.route('/pullScrapedStories', methods=['POST'])
 def pullScrapedStories():
     try:
         data = request.get_json()
@@ -88,7 +126,7 @@ def pullScrapedStories():
                 )
                 current_app.logger.info(f"Story added with ID: {story_id} and Title: {story['title']}")
 
-        return jsonify({'message': 'Story data pulled successfully', 'storiesData': data})
+        return jsonify({'message': 'Story data received successfully', 'storiesData': data})
     except Exception as e:
         current_app.logger.error(f"Error while processing stories: {e}")
         return jsonify({'error': str(e)}), 500
@@ -133,6 +171,14 @@ def getAllStories():
     return jsonify({'stories': stories})
 
 
+@app.route('/getAllWorldData', methods=['GET'])
+def getAllWorldData():
+    worldData = fabCollection.get(
+        where={"kind": "regionData"}
+    )
+    return jsonify({'worldData': worldData})
+
+
 @app.route('/getHero/<name>', methods=['GET'])
 def getHero(name):
     # Durchführen einer Abfrage basierend auf dem Namen der Persona
@@ -151,7 +197,6 @@ def getHero(name):
 def getStory(title):
     result = fabCollection.get(
         where={'title': title},
-        include=['embeddings', 'documents', 'metadatas']
     )
     if result:
         return jsonify({'story': result})
@@ -213,6 +258,11 @@ def deleteHeroByName(name):
 def deleteAllStories():
     fabCollection.delete(where={"kind": "story"})
     return jsonify({'message': 'stories successfully deleted'})
+
+@app.route('/deleteAllWorldData', methods=['DELETE'])
+def deleteAllWorldData():
+    fabCollection.delete(where={"kind": "regionData"})
+    return jsonify({'message': 'World Data deleted successfully.'})
 
 
 @app.route('/deleteCollection/<name>', methods=['DELETE'])
