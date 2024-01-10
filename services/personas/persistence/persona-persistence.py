@@ -7,7 +7,7 @@ import json
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
-# chroma_client.delete_collection(name="heroes")
+#chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
 # testCollection = chroma_client.get_or_create_collection(name="test", embedding_function=default_ef)
 
@@ -145,6 +145,31 @@ def getHero(name):
     else:
         print("no result")
         return jsonify({'message': 'hero not found'}), 404
+
+@app.route('/getInteractingHeroes', methods=['GET'])
+def getInteractingHeroes():
+    heroes = request.args.get('heroes')
+    if heroes:
+        heroes_list = heroes.split(',')
+        promt = "What interactions did " + heroes_list[0]
+        if len(heroes_list) > 1:
+            promt += " and " + " and ".join(heroes_list[1:])
+        promt += " have?"
+        try:
+            result = fabCollection.query(query_texts=[promt])
+            current_app.logger.info(f"Query-promt sent to DB: {promt}")
+            if result:
+                return jsonify({'interaction between ' + heroes: result})
+            else:
+                print("no result")
+                return jsonify({'error': 'The query call returned no result'}), 404
+        except Exception as e:
+            error_message = f"Query-request to GPT API failed: {e}"
+            current_app.logger.error(error_message)
+            return jsonify({'error': error_message}), 500
+    else:
+        print("No heroes provided")
+        return jsonify({'error': 'No heroes provided'}), 400
 
 
 @app.route('/getStory/<title>', methods=['GET'])
