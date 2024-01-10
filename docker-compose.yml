@@ -2,15 +2,19 @@ version: "3"
 
 services:
 
-  persona-creation:
+  persona_creation:
     build:
       context: services/personas/creation
     ports:
       - "8080:8080"
+    volumes:
+      - chromadb-data:/var/lib/chromadb
     networks:
       - backend
     depends_on:
-      - mysql
+      - chroma_db
+    env_file:
+      - .env
 
   persona-conversation:
     build:
@@ -20,33 +24,41 @@ services:
     networks:
       - backend
     depends_on:
-      - mysql
+      - chroma_db
+    env_file:
+      - .env
 
   persona-persistence:
     build:
       context: services/personas/persistence
     ports:
       - "8082:8082"
+    volumes:
+      - chromadb-data:/var/lib/chromadb
     networks:
       - backend
     depends_on:
-      - mysql
+      - chroma_db
+    env_file:
+      - .env
 
-  mysql:
-    image: mysql:latest
-    container_name: local-mysql
+  chroma_db:
+    image: chroma:latest
+    container_name: local-chromadb
     ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: password123
-      MYSQL_DATABASE: microdata
+      - "8083:8000"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - chromadb-data:/var/lib/chromadb
     networks:
       - backend
 
-volumes:
-  mysql-data:
-
 networks:
   backend:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+
+  chromadb-data:
+    driver: local

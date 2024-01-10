@@ -4,7 +4,17 @@
     <title>Story Scraper</title>
 </head>
 <body>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
 <h1>Scraped Stories</h1>
+<form method="post">
+    <input type="submit" value="Scrape Stories">
+</form>
 <ul>
     {% for story in stories %}
     <li>

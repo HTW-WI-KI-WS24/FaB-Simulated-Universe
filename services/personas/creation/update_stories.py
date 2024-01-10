@@ -8,7 +8,7 @@ characters = [
      "Chane", "Dash", "Data Doll", "Dorinthea", "Dromai", "Emperor", "Fai",
      "Genis", "Ira", "Iyslander", "Kano", "Kassai", "Katsu", "Kavdaen", "Kayo",
      "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Olympia", "Prism", "Rhinar", "Riptide",
-     "Shiyana", "Teklovossen", "Uzuri", "Valda", "Viserai", "Vynnset", "Yoji"
+     "Shiyana", "Teklovossen", "Uzuri", "Valda", "Victor Goldmane", "Viserai", "Vynnset", "Yoji"
 ]
 
 

@@ -21,22 +21,44 @@ persona_introduction = ""
 persona_writing = ""
 name = ""
 messages = []
-db_service_url = 'http://persona-persistence:8082/createPersona'
-scrapedStories = update_stories.scrape_stories(stories_url)
-scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
+# db_service_url = 'http://persona-persistence:8082/createHero'
+chromadb_service_url = 'http://persona-persistence:8082'
 
 
-@app.route("/scrapeHeroes")
+@app.route("/scrapeHeroes", methods=['GET', 'POST'])
 def scrapeHeroes():
-    return render_template('hero_scraper.html', heroes=scrapedHeroes)
+    if request.method == 'POST':
+        scrapedHeroes = update_heroes.scrape_heroes(heroes_url)
+        heroes_data = [
+            {'name': hero['name'], 'designation': hero['designation'], 'text': hero['text']}
+            for hero in scrapedHeroes
+        ]
+        requests.post(chromadb_service_url + '/pullscrapedHeroes', json=heroes_data,
+                      headers={'Content-Type': 'application/json'})
+        flash('Heroes scraped and updated successfully!')
+        return render_template('hero_scraper.html', heroes=scrapedHeroes)
+    else:
+        return render_template('hero_scraper.html')
 
 
-@app.route("/scrapeStories")
+@app.route("/scrapeStories", methods=['GET', 'POST'])
 def scrapeStories():
-    return render_template('story_scraper.html', stories=scrapedStories)
+    if request.method == 'POST':
+        scrapedStories = update_stories.scrape_stories(stories_url)
+        stories_data = [
+            {'title': story.title, 'description': story.description,
+             'heroes': story.characters, 'text': story.text}
+            for story in scrapedStories
+        ]
+        requests.post(chromadb_service_url + '/pullscrapedStories', json=stories_data,
+                      headers={'Content-Type': 'application/json'})
+        flash('Stories scraped and updated successfully!')
+        return render_template('story_scraper.html', stories=scrapedStories)
+    else:
+        return render_template('story_scraper.html')
 
 
-@app.route("/")
+@app.route("/enterName")
 def index():
     flash("What's the Heros name?")
     return render_template("0_enter_name.html")
@@ -145,7 +167,7 @@ def checkPersonaExperience():
     # Safe the generated Data in the database
     prompt = chat.choices[0].message.content
     data = {'name': name, 'biography': prompt}
-    requests.post(db_service_url, json=data)
+    #    requests.post(db_service_url, json=data)
     # Return the generated article content
     flash("Persona: " + name + "\n" + chat.choices[0].message.content)
 
