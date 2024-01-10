@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generated Story</title>
+</head>
+<body>
+<h1>Generated Story</h1>
+{% if generated_story %}
+<p>{{ generated_story|safe }}</p>
+{% else %}
+<p>No story generated or story is empty.</p>
+{% endif %}
+<a href="/createConversation">Create Another Story</a>
+</body>
+</html>

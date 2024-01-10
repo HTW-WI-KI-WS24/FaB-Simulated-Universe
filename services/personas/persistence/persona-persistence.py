@@ -151,7 +151,6 @@ def getHero(name):
 def getStory(title):
     result = fabCollection.get(
         where={'title': title},
-        include=['embeddings', 'documents', 'metadatas']
     )
     if result:
         return jsonify({'story': result})
