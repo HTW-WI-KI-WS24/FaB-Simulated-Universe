@@ -161,7 +161,7 @@ def sendConversation():
     prompt = ("I want you to write a story set in this world:\n".join(worldbuilding) +
               "\nThe Characters for this story are:\n" + ', '.join(participatingCharacters) +
               "\n\nThe Setting should be " + setting +
-              "\nAnd the goal of the story should be to be as " + style + " as possible."
+              "\nAnd the story should be written to be very " + style + "."
               "\nHere is additional information about the characters: " + queriedCharacterData
               "\nWrite about 500-1000 words.")
 

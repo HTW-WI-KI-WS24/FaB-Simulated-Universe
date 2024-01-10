@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>World Scraper</title>
+</head>
+<body>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<h1>Scraped World Regions</h1>
+<form method="post">
+    <input type="submit" value="Scrape World">
+</form>
+<ul>
+    {% for region in regions %}
+    <li>
+        <h2>{{ region.name }}</h2>
+        <p>URL: <a href="{{ region.url }}">{{ region.url }}</a></p>
+        <p>{{ region.text }}</p>
+    </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
