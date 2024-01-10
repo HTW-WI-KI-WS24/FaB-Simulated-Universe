@@ -153,7 +153,7 @@ def getInteractingHeroes():
         heroes_list = heroes.split(',')
         promt = "What interactions did " + heroes_list[0]
         if len(heroes_list) > 1:
-            promt += " and " + " and ".join(heroes_list[1:])
+            promt += " and" + " and".join(heroes_list[1:])
         promt += " have?"
         try:
             result = fabCollection.query(query_texts=[promt])
