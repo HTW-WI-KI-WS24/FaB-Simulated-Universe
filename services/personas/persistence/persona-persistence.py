@@ -151,13 +151,13 @@ def getInteractingHeroes():
     heroes = request.args.get('heroes')
     if heroes:
         heroes_list = heroes.split(',')
-        promt = "What interactions did " + heroes_list[0]
+        prompt = "Identify narratives where " + heroes_list[0]
         if len(heroes_list) > 1:
-            promt += " and" + " and".join(heroes_list[1:])
-        promt += " have?"
+            prompt += " and" + " and".join(heroes_list[1:])
+        prompt += " appear in the same context."
         try:
-            result = fabCollection.query(query_texts=[promt])
-            current_app.logger.info(f"Query-promt sent to DB: {promt}")
+            result = fabCollection.query(query_texts=[prompt])
+            current_app.logger.info(f"Query-prompt sent to DB: {prompt}")
             if result:
                 return jsonify({'interactions between: ' + heroes: result})
             else:
@@ -171,6 +171,31 @@ def getInteractingHeroes():
         print("No heroes provided")
         return jsonify({'error': 'No heroes provided'}), 400
 
+
+#@app.route('/getInteractingHeroes', methods=['GET'])
+#def getInteractingHeroes():
+#    heroes = request.args.get('heroes')
+#    if heroes:
+#        heroes_list = heroes.split(',')
+#        prompt = "What interactions did " + heroes_list[0]
+#        if len(heroes_list) > 1:
+#            prompt += " and" + " and".join(heroes_list[1:])
+#        prompt += " have?"
+#        try:
+#            result = fabCollection.query(query_texts=[prompt])
+#           current_app.logger.info(f"Query-promt sent to DB: {prompt}")
+#           if result:
+#                return jsonify({'interactions between: ' + heroes: result})
+#            else:
+#                print("no result")
+#                return jsonify({'error': 'The query call returned no result'}), 404
+#        except Exception as e:
+#            error_message = f"Query-request to DB failed: {e}"
+#            current_app.logger.error(error_message)
+#            return jsonify({'error': error_message}), 500
+#    else:
+#        print("No heroes provided")
+#        return jsonify({'error': 'No heroes provided'}), 400
 
 @app.route('/getStory/<title>', methods=['GET'])
 def getStory(title):
