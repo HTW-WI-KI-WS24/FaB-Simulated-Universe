@@ -51,7 +51,6 @@ After the containers are up and running, initialize the database:
 
 - [ ] Frontend Styling Enhancements
 - [ ] Advanced Story Generation Features
-- [ ] Scraper for Worldbuilding (https://fabtcg.com/world-of-rathe/)
 - [ ] Integration with Additional APIs for Richer Content
 
 ## Contributing

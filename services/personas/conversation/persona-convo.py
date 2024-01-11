@@ -162,7 +162,7 @@ def sendConversation():
               "\nThe Characters for this story are:\n" + ', '.join(participatingCharacters) +
               "\n\nThe Setting should be " + setting +
               "\nAnd the story should be written to be very " + style + "."
-              "\nHere is additional information about the characters: " + queriedCharacterData
+              "\nHere is additional information about the characters: " + queriedCharacterData +
               "\nWrite about 500-1000 words.")
 
     current_app.logger.info(f"Generated prompt: {prompt}")
