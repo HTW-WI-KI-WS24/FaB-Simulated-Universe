@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %} - Conversation App</title>
+    <link rel="stylesheet" href="conversation.css" /> <!-- Link to your conversation-specific CSS file -->
+    {% block head %}{% endblock %} <!-- Additional head elements can be added by child templates -->
+</head>
+<body>
+<header>
+    {% block header %}
+    <!-- Common header content goes here, like a logo or a title -->
+    <h1>Conversation App</h1>
+    {% endblock %}
+</header>
+
+<main>
+    {% block content %}
+    <!-- Main content area for conversation templates -->
+    {% endblock %}
+</main>
+
+<footer>
+    {% block footer %}
+    <!-- Common footer content, like copyright or navigation links -->
+    &copy; {{ current_year }} Conversation App
+    {% endblock %}
+</footer>
+
+{% block scripts %}{% endblock %} <!-- Additional scripts can be added by child templates -->
+</body>
+</html>

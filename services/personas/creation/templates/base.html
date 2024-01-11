@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="base.css" /> <!-- Link to the external CSS file -->
+    <title>{% block title %}{% endblock %} - FOB </title>
+    {% block additional_styles %}{% endblock %} <!-- Additional styles -->
+</head>
+<body>
+<header>
+    {% block header %}{% endblock %} <!-- Header content -->
+</header>
+
+<nav>
+    {% block navigation %}{% endblock %} <!-- Navigation menu -->
+</nav>
+
+<main>
+    {% block content %}{% endblock %} <!-- Main content -->
+</main>
+
+<footer>
+    {% block footer %}{% endblock %} <!-- Footer content -->
+</footer>
+
+{% block additional_scripts %}{% endblock %} <!-- Additional scripts -->
+</body>
+</html>

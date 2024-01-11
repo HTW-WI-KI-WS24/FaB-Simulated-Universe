@@ -1,60 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Conversation</title>
-    <script>
-        function addHero() {
-            var dropdown = document.getElementById('heroesDropdown');
-            var selectedHero = dropdown.options[dropdown.selectedIndex].value;
+{% extends 'base.html' %}
 
-            var heroDiv = document.createElement('div');
-            heroDiv.classList.add('hero-list-item');
-            heroDiv.innerText = selectedHero;
+{% block title %}Create Conversation{% endblock %}
 
-            var removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.innerText = 'Remove';
-            removeButton.onclick = function() {
-                heroDiv.remove();
-                updateHiddenInputs();
-            };
+{% block head %}
+<script>
+    function addHero() {
+        var dropdown = document.getElementById('heroesDropdown');
+        var selectedHero = dropdown.options[dropdown.selectedIndex].value;
 
-            heroDiv.appendChild(removeButton);
-            document.getElementById('selectedHeroes').appendChild(heroDiv);
+        var heroDiv = document.createElement('div');
+        heroDiv.classList.add('hero-list-item');
+        heroDiv.innerText = selectedHero;
+
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.innerText = 'Remove';
+        removeButton.onclick = function() {
+            heroDiv.remove();
             updateHiddenInputs();
-        }
+        };
 
-        function addStyle() {
-            var selectedStyle = document.getElementById("styleSelect").value;
-            var styleDiv = document.createElement('div');
-            styleDiv.classList.add('style-list-item');
-            styleDiv.innerText = selectedStyle;
+        heroDiv.appendChild(removeButton);
+        document.getElementById('selectedHeroes').appendChild(heroDiv);
+        updateHiddenInputs();
+    }
 
-            var removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.innerText = 'Remove';
-            removeButton.onclick = function() {
-                styleDiv.remove();
-                updateHiddenInputs();
-            };
+    function addStyle() {
+        var selectedStyle = document.getElementById("styleSelect").value;
+        var styleDiv = document.createElement('div');
+        styleDiv.classList.add('style-list-item');
+        styleDiv.innerText = selectedStyle;
 
-            styleDiv.appendChild(removeButton);
-            document.getElementById('selectedStyles').appendChild(styleDiv);
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.innerText = 'Remove';
+        removeButton.onclick = function() {
+            styleDiv.remove();
             updateHiddenInputs();
-        }
+        };
 
-        function updateHiddenInputs() {
-            var selectedHeroes = Array.from(document.getElementById('selectedHeroes').children)
-                .map(div => div.textContent.replace('Remove', '').trim());
-            document.getElementById('hiddenSelectedHeroes').value = JSON.stringify(selectedHeroes);
+        styleDiv.appendChild(removeButton);
+        document.getElementById('selectedStyles').appendChild(styleDiv);
+        updateHiddenInputs();
+    }
 
-            var selectedStyles = Array.from(document.getElementById('selectedStyles').children)
-                .map(div => div.textContent.replace('Remove', '').trim());
-            document.getElementById('hiddenSelectedStyles').value = JSON.stringify(selectedStyles);
-        }
-    </script>
-</head>
-<body>
+    function updateHiddenInputs() {
+        var selectedHeroes = Array.from(document.getElementById('selectedHeroes').children)
+            .map(div => div.textContent.replace('Remove', '').trim());
+        document.getElementById('hiddenSelectedHeroes').value = JSON.stringify(selectedHeroes);
+
+        var selectedStyles = Array.from(document.getElementById('selectedStyles').children)
+            .map(div => div.textContent.replace('Remove', '').trim());
+        document.getElementById('hiddenSelectedStyles').value = JSON.stringify(selectedStyles);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
 <form action="/sendConversation" method="post">
     <label for="heroesDropdown">Select the Heroes that should be in the story:</label><br>
     <select id="heroesDropdown">
@@ -93,5 +95,4 @@
 
     <input type="submit" value="Create Story">
 </form>
-</body>
-</html>
+{% endblock %}

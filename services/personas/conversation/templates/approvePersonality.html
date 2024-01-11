@@ -1,22 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Approve Personality</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Approve Personality{% endblock %}
+
+{% block content %}
 <h1>Approve Personality</h1>
 <p>Generated Personality: {{ personality }}</p>
 <form action="/updateHero" method="post">
-  <input type="hidden" name="heroId" value="{{ hero.id }}">
-  <input type="hidden" name="heroName" value="{{ hero.name }}">
-  <input type="hidden" name="heroText" value="{{ hero.text }}">
-  <input type="hidden" name="heroDesignation" value="{{ hero.designation }}">
-  <input type="hidden" name="personality" value="{{ personality }}">
-  <input type="submit" value="Approve">
+    <input type="hidden" name="heroId" value="{{ hero.id }}">
+    <input type="hidden" name="heroName" value="{{ hero.name }}">
+    <input type="hidden" name="heroText" value="{{ hero.text }}">
+    <input type="hidden" name="heroDesignation" value="{{ hero.designation }}">
+    <input type="hidden" name="personality" value="{{ personality }}">
+    <input type="submit" value="Approve">
 </form>
 <form action="/generatePersonality" method="post">
-  <input type="hidden" name="heroId" value="{{ hero_id }}">
-  <input type="submit" value="Regenerate">
+    <input type="hidden" name="heroId" value="{{ hero_id }}">
+    <input type="submit" value="Regenerate">
 </form>
-</body>
-</html>
+{% endblock %}
+
