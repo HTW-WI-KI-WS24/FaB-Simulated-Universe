@@ -50,7 +50,6 @@ After the containers are up and running, initialize the database:
 ## To-Do Roadmap
 
 - [ ] Frontend Styling Enhancements
-- [ ] Add Style Tags to Generated Stories and let User rate them
 - [ ] Generation/Information Adding Feature
 - [ ] Integration with Additional APIs for Richer Content
 
