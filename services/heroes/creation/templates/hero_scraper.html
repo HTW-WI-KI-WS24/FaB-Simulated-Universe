@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>World Scraper</title>
+    <title>Hero Scraper</title>
 </head>
 <body>
 {% with messages = get_flashed_messages() %}
@@ -11,16 +11,16 @@
 {% endfor %}
 {% endif %}
 {% endwith %}
-<h1>Scraped World Regions</h1>
+<h1>Scrape Heroes</h1>
 <form method="post">
-    <input type="submit" value="Scrape World">
+    <input type="submit" value="Scrape Heroes">
 </form>
 <ul>
-    {% for region in regions %}
+    {% for hero in heroes %}
     <li>
-        <h2>{{ region.name }}</h2>
-        <p>URL: <a href="{{ region.url }}">{{ region.url }}</a></p>
-        <p>{{ region.text }}</p>
+        <h2>{{ hero.name }}</h2>
+        <p>Class: {{ hero.designation }}</p>
+        <p>{{ hero.text }}</p>
     </li>
     {% endfor %}
 </ul>

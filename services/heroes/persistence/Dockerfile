@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "persona-persistence.py"]
+CMD ["python", "heroes-persistence.py"]

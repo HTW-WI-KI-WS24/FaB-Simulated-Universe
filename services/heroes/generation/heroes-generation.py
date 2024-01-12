@@ -18,31 +18,12 @@ app = Flask(__name__)
 app.secret_key = app_secret_key
 
 # Global variables
-chromadb_service_url = 'http://persona-persistence:8082'
+chromadb_service_url = 'http://heroes-persistence:8082'
 getPersonaUrl = f'{chromadb_service_url}/getHero/'
 personaList = []
 
 
-# Helper functions
-def get_json_response(url, error_message="Failed to retrieve data"):
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        flash(error_message)
-        return None
-
-
-def post_json(url, json_data, headers):
-    try:
-        response = requests.post(url, json=json_data, headers=headers)
-        return response if response.status_code == 200 else None
-    except requests.exceptions.RequestException as e:
-        current_app.logger.error(f"Request to {url} failed: {e}")
-        return None
-
-
-@app.route('/showPlaceholders')
+@app.route('/unfinishedHeroes')
 def showPlaceholderPersonalities():
     json_data = get_json_response(f'{chromadb_service_url}/getAllPlaceholders', "Failed to retrieve heroes")
     heroes = [{"id": id, **metadata} for id, metadata in zip(json_data.get('heroes', {}).get('ids', []),
@@ -132,7 +113,7 @@ def generatePersonality():
         generated_personality = f"Error generating personality. Exception: {e}"
 
     flash(generated_personality)
-    return render_template('approvePersonality.html', hero=hero_data, personality=generated_personality)
+    return render_template('generatePersonality.html', hero=hero_data, personality=generated_personality)
 
 
 @app.route('/updateHero', methods=['POST'])
@@ -155,7 +136,7 @@ def updateHero():
     return redirect(url_for('showPlaceholderPersonalities'))
 
 
-@app.route('/createConversation', methods=['GET'])
+@app.route('/prepareStory', methods=['GET'])
 def createConversation():
     json_data = get_json_response(f'{chromadb_service_url}/getAllHeroes', "Failed to retrieve heroes")
     if json_data:
@@ -165,10 +146,10 @@ def createConversation():
         hero_names.sort()
     else:
         hero_names = []
-    return render_template('createConversation.html', hero_names=hero_names)
+    return render_template('prepareStory.html', hero_names=hero_names)
 
 
-@app.route('/sendConversation', methods=['POST'])
+@app.route('/generateStory', methods=['POST'])
 def sendConversation():
     Worldbuilding = get_story("The Land of Rathe")
     participatingCharacters = request.form['selectedHeroes'].split(',')
@@ -236,7 +217,7 @@ def sendConversation():
     else:
         flash('Failed to save story. Please try again.')
 
-    return render_template("generatedStory.html", generated_story=generated_story, story_data=story_data)
+    return render_template("generateStory.html", generated_story=generated_story, story_data=story_data)
 
 
 def get_story(title):
@@ -331,6 +312,24 @@ def generate_uuid(name):
     # Generate a UUID based on the SHA-1 hash of a namespace identifier and a name
     name_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, name)
     return str(name_uuid)
+
+
+def get_json_response(url, error_message="Failed to retrieve data"):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        flash(error_message)
+        return None
+
+
+def post_json(url, json_data, headers):
+    try:
+        response = requests.post(url, json=json_data, headers=headers)
+        return response if response.status_code == 200 else None
+    except requests.exceptions.RequestException as e:
+        current_app.logger.error(f"Request to {url} failed: {e}")
+        return None
 
 
 if __name__ == '__main__':

@@ -2,9 +2,9 @@ version: "3"
 
 services:
 
-  persona_creation:
+  heroes-creation:
     build:
-      context: services/personas/creation
+      context: services/heroes/creation
     ports:
       - "8080:8080"
     volumes:
@@ -16,9 +16,9 @@ services:
     env_file:
       - .env
 
-  persona-conversation:
+  heroes-generation:
     build:
-      context: services/personas/conversation
+      context: services/heroes/generation
     ports:
       - "8081:8081"
     networks:
@@ -28,9 +28,9 @@ services:
     env_file:
       - .env
 
-  persona-persistence:
+  heroes-persistence:
     build:
-      context: services/personas/persistence
+      context: services/heroes/persistence
     ports:
       - "8082:8082"
     volumes:

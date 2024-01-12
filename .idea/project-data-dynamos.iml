@@ -20,4 +20,12 @@
       </list>
     </option>
   </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/services/heroes/generation/templates" />
+        <option value="$MODULE_DIR$/services/heroes/creation/templates" />
+      </list>
+    </option>
+  </component>
 </module>
