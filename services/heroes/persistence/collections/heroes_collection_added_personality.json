@@ -491,10 +491,7 @@
             "description": "Viserai breaks free... and opens the doorway...",
             "kind": "story",
             "title": "Return of the Shadow",
-            "viserai": "Viserai",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "viserai": "Viserai"
         },
         {
             "kind": "regionData",
@@ -504,10 +501,7 @@
             "description": "There's hit men. There's big game hunters. Then there's king slayers...",
             "emperor": "Emperor",
             "kind": "story",
-            "title": "The Blood Stained Web",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Blood Stained Web"
         },
         {
             "kind": "regionData",
@@ -553,10 +547,7 @@
             "description": "Boltyn seeks answers after a strange experience on the battlefield...",
             "kind": "story",
             "prism": "Prism",
-            "title": "Step into the Light",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Step into the Light"
         },
         {
             "kind": "regionData",
@@ -575,20 +566,14 @@
             "prism": "Prism",
             "shiyana": "Shiyana",
             "title": "Falling in Darkness",
-            "vynnset": "Vynnset",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "vynnset": "Vynnset"
         },
         {
             "boltyn": "Boltyn",
             "description": "Dorinthea leads a desperate assault on the dimensional gateway...",
             "dorinthea": "Dorinthea",
             "kind": "story",
-            "title": "Morlock Hill",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Morlock Hill"
         },
         {
             "kind": "regionData",
@@ -642,10 +627,7 @@
             "description": "A bold scientist changes the world...",
             "kind": "story",
             "teklovossen": "Teklovossen",
-            "title": "The Dynamic Man",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Dynamic Man"
         },
         {
             "kind": "regionData",
@@ -670,10 +652,7 @@
         {
             "description": "For eons, the realm of Aria has remained untouched by the passage of time...",
             "kind": "story",
-            "title": "The Land of Legends",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Land of Legends"
         },
         {
             "kind": "regionData",
@@ -695,10 +674,7 @@
             "boltyn": "Boltyn",
             "description": "Tragedy befalls a brave warrior, who takes up a vow to protect his people...",
             "kind": "story",
-            "title": "Sworn to Protect",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Sworn to Protect"
         },
         {
             "kind": "regionData",
@@ -709,18 +685,12 @@
             "emperor": "Emperor",
             "kind": "story",
             "title": "The One Emperor",
-            "yoji": "Yoji",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "yoji": "Yoji"
         },
         {
             "description": "Welcome to Rathe, a land of heroes and legends...",
             "kind": "story",
-            "title": "The Land of Rathe",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Land of Rathe"
         },
         {
             "kind": "regionData",
@@ -756,10 +726,7 @@
             "description": "A gaggle of gangsters stumble into Riptide's traps...",
             "kind": "story",
             "riptide": "Riptide",
-            "title": "Catch of the Day",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Catch of the Day"
         },
         {
             "kind": "regionData",
@@ -772,10 +739,7 @@
         {
             "description": "Heroes rise, as the call to arms grows louder...",
             "kind": "story",
-            "title": "Armed to the Teeth",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Armed to the Teeth"
         },
         {
             "designation": "Mechanologist",
@@ -858,10 +822,7 @@
             "kind": "story",
             "maxx": "Maxx",
             "teklovossen": "Teklovossen",
-            "title": "System Failure",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "System Failure"
         },
         {
             "kind": "regionData",
@@ -919,10 +880,7 @@
             "dash": "Dash",
             "description": "Dash tries to find her friend in the sprawling city of Metrix...",
             "kind": "story",
-            "title": "Needle in a Haystack",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Needle in a Haystack"
         },
         {
             "kind": "regionData",
@@ -957,10 +915,7 @@
             "emperor": "Emperor",
             "fai": "Fai",
             "kind": "story",
-            "title": "Fires of Rebellion",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Fires of Rebellion"
         },
         {
             "kind": "regionData",
@@ -995,10 +950,7 @@
             "kind": "story",
             "lexi": "Lexi",
             "oldhim": "Oldhim",
-            "title": "A Grand Adventure",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "A Grand Adventure"
         },
         {
             "kind": "regionData",
@@ -1008,18 +960,12 @@
             "description": "A young peasant girl undergoes a dark ritual, and emerges as a monster...",
             "kind": "story",
             "levia": "Levia",
-            "title": "Destroy and Consume",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Destroy and Consume"
         },
         {
             "description": "As her talents grew, so did her hunger for power...",
             "kind": "story",
-            "title": "Lady Barthimont",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Lady Barthimont"
         },
         {
             "kind": "regionData",
@@ -1059,10 +1005,7 @@
             "briar": "Briar",
             "description": "A wild rose is born from thorns...",
             "kind": "story",
-            "title": "Amongst the Brambles",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Amongst the Brambles"
         },
         {
             "designation": "Elemental Ranger",
@@ -1130,19 +1073,13 @@
             "emperor": "Emperor",
             "kano": "Kano",
             "kind": "story",
-            "title": "From the Ashes",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "From the Ashes"
         },
         {
             "description": "Dorinthea learns from her brash mistakes, becoming a formidable warrior...",
             "dorinthea": "Dorinthea",
             "kind": "story",
-            "title": "Pride of the Ironsongs",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Pride of the Ironsongs"
         },
         {
             "kind": "regionData",
@@ -1187,10 +1124,7 @@
             "emperor": "Emperor",
             "kano": "Kano",
             "kind": "story",
-            "title": "Playing with Fire",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Playing with Fire"
         },
         {
             "kind": "regionData",
@@ -1225,10 +1159,7 @@
             "dorinthea": "Dorinthea",
             "kassai": "Kassai",
             "kind": "story",
-            "title": "No Smoke Without Fire",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "No Smoke Without Fire"
         },
         {
             "kind": "regionData",
@@ -1245,10 +1176,7 @@
             "dash": "Dash",
             "description": "A young inventor gets up to a little mischief...",
             "kind": "story",
-            "title": "Stroke of Genius",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Stroke of Genius"
         },
         {
             "designation": "Elemental Guardian",
@@ -1413,10 +1341,7 @@
             "emperor": "Emperor",
             "fai": "Fai",
             "kind": "story",
-            "title": "Betrayal",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Betrayal"
         },
         {
             "kind": "regionData",
@@ -1437,10 +1362,7 @@
             "description": "A child of Light is lured into the darkness...",
             "kind": "story",
             "title": "Anointed in Shadow",
-            "vynnset": "Vynnset",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "vynnset": "Vynnset"
         },
         {
             "kind": "regionData",
@@ -1461,10 +1383,7 @@
             "emperor": "Emperor",
             "kind": "story",
             "shiyana": "Shiyana",
-            "title": "Tidings in the Light",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Tidings in the Light"
         },
         {
             "kind": "regionData",
@@ -1478,10 +1397,7 @@
             "description": "Lord Sutcliffe transforms a corpse into a living weapon...",
             "kind": "story",
             "title": "Birth of the Arknight",
-            "viserai": "Viserai",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "viserai": "Viserai"
         },
         {
             "kind": "regionData",
@@ -1504,10 +1420,7 @@
             "emperor": "Emperor",
             "kano": "Kano",
             "kind": "story",
-            "title": "Smoke and Mirrors",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Smoke and Mirrors"
         },
         {
             "kind": "regionData",
@@ -1523,19 +1436,13 @@
             "fai": "Fai",
             "kind": "story",
             "levia": "Levia",
-            "title": "Harbinger of the Abyss",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Harbinger of the Abyss"
         },
         {
             "description": "Volthaven gains an aspiring new Wayfarer...",
             "kind": "story",
             "lexi": "Lexi",
-            "title": "Wonders of the Wayfarer",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Wonders of the Wayfarer"
         },
         {
             "kind": "regionData",
@@ -1544,10 +1451,7 @@
         {
             "description": "An ancient Ollin awakens after thousands of years in icy slumber...",
             "kind": "story",
-            "title": "The Broken Covenant",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Broken Covenant"
         },
         {
             "designation": "Wizard",
@@ -1587,10 +1491,7 @@
             "chane": "Chane",
             "description": "A scholar turns to the shadows on his quest for knowledge...",
             "kind": "story",
-            "title": "Emissary of the Void",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Emissary of the Void"
         },
         {
             "kind": "regionData",
@@ -1608,10 +1509,7 @@
             "description": "Abandoned as a pup, Rhinar grows into an apex predator...",
             "kind": "story",
             "rhinar": "Rhinar",
-            "title": "Kill or be Killed",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Kill or be Killed"
         },
         {
             "kind": "regionData",
@@ -1679,19 +1577,13 @@
             "description": "Eventually, he will find the means to make Viserai pay for his disobedience...",
             "kind": "story",
             "title": "Lord Sutcliffe",
-            "viserai": "Viserai",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "viserai": "Viserai"
         },
         {
             "description": "Katsu leaves to find a cure for his clan...",
             "katsu": "Katsu",
             "kind": "story",
-            "title": "Wanderings in the Mist",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Wanderings in the Mist"
         },
         {
             "kind": "regionData",
@@ -1750,10 +1642,7 @@
         {
             "description": "With their prot\u00e9g\u00e9e by their side, the Librarian oversees all...",
             "kind": "story",
-            "title": "The Librarian",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Librarian"
         },
         {
             "kind": "regionData",
@@ -1766,10 +1655,7 @@
         {
             "description": "A shoulder to lean on in your darkest hour...",
             "kind": "story",
-            "title": "Minerva Themis",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Minerva Themis"
         },
         {
             "kind": "regionData",
@@ -1794,10 +1680,7 @@
             "bravo": "Bravo",
             "description": "Destiny comes knocking for Bravo, the star of the Everfest Carnival...",
             "kind": "story",
-            "title": "A Rising Star",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "A Rising Star"
         },
         {
             "kind": "regionData",
@@ -1813,10 +1696,7 @@
             "dash": "Dash",
             "description": "'Tis the night before Christmas, and the air is ripe for the robbing...",
             "kind": "story",
-            "title": "Squeaker's Christmas",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Squeaker's Christmas"
         },
         {
             "kind": "regionData",
@@ -1853,10 +1733,7 @@
             "description": "Uzuri completes her first contract for the Spider...",
             "kind": "story",
             "title": "It's Just Business",
-            "uzuri": "Uzuri",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "uzuri": "Uzuri"
         },
         {
             "kind": "regionData",
@@ -1890,10 +1767,7 @@
             "emperor": "Emperor",
             "kind": "story",
             "title": "Vow of Vigilance",
-            "yoji": "Yoji",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "yoji": "Yoji"
         },
         {
             "kind": "regionData",
@@ -1902,10 +1776,7 @@
         {
             "description": "War is on the horizon, and the people of Rathe are prepared for battle...",
             "kind": "story",
-            "title": "In the Fires of the Forge",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "In the Fires of the Forge"
         },
         {
             "designation": "Warrior",
@@ -1925,19 +1796,13 @@
             "kind": "story",
             "riptide": "Riptide",
             "title": "The Spider's Trap",
-            "uzuri": "Uzuri",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "uzuri": "Uzuri"
         },
         {
             "dash": "Dash",
             "description": "Home-made gadgets come in clutch during a crazy rescue attempt...",
             "kind": "story",
-            "title": "Full Steam Ahead",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Full Steam Ahead"
         },
         {
             "kind": "regionData",
@@ -1964,10 +1829,7 @@
             "emperor": "Emperor",
             "fai": "Fai",
             "kind": "story",
-            "title": "Ember in the Ash",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Ember in the Ash"
         },
         {
             "kind": "regionData",
@@ -2054,10 +1916,7 @@
             "emperor": "Emperor",
             "kind": "story",
             "shiyana": "Shiyana",
-            "title": "In Flames",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "In Flames"
         },
         {
             "kind": "regionData",
@@ -2119,10 +1978,7 @@
             "emperor": "Emperor",
             "fai": "Fai",
             "kind": "story",
-            "title": "Dragons of Empire",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Dragons of Empire"
         },
         {
             "kind": "regionData",
@@ -2131,10 +1987,7 @@
         {
             "description": "Patient 1413 has escaped Southmaw Asylum...",
             "kind": "story",
-            "title": "The Iconoclast Trials",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Iconoclast Trials"
         },
         {
             "kind": "regionData",
@@ -2156,10 +2009,7 @@
             "description": "Iyslander's origin is revealed...",
             "iyslander": "Iyslander",
             "kind": "story",
-            "title": "Calm before the Storm",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Calm before the Storm"
         },
         {
             "kind": "regionData",
@@ -2190,10 +2040,7 @@
             "emperor": "Emperor",
             "fai": "Fai",
             "kind": "story",
-            "title": "The Phoenix and the Dragon",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "The Phoenix and the Dragon"
         },
         {
             "designation": "Assassin",
@@ -2221,10 +2068,7 @@
             "azalea": "Azalea",
             "description": "Azalea tries to land a contract in the Pits...",
             "kind": "story",
-            "title": "Cards on the Table",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Cards on the Table"
         },
         {
             "kind": "regionData",
@@ -2237,10 +2081,7 @@
         {
             "description": "A street rat learns how to survive in the underworld...",
             "kind": "story",
-            "title": "Slings and Arrows",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Slings and Arrows"
         },
         {
             "kind": "regionData",
@@ -2254,10 +2095,7 @@
             "description": "Inspired by the tales of old, a young girl discovers her inner talent...",
             "kind": "story",
             "prism": "Prism",
-            "title": "Stories of Illumination",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Stories of Illumination"
         },
         {
             "designation": "Elemental Wizard",
@@ -2353,10 +2191,7 @@
             "kind": "story",
             "maxx": "Maxx",
             "teklovossen": "Teklovossen",
-            "title": "Synthetic Futures",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Synthetic Futures"
         },
         {
             "kind": "regionData",
@@ -2415,10 +2250,7 @@
             "description": "A young ninja wielding a magic sword ventures down a path of vengeance...",
             "ira": "Ira",
             "kind": "story",
-            "title": "Edge of Autumn",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Edge of Autumn"
         },
         {
             "kind": "regionData",
@@ -2432,10 +2264,7 @@
             "description": "Become more than human...",
             "kind": "story",
             "teklovossen": "Teklovossen",
-            "title": "P\u0338\u030c\u0310\u031a\u033e\u030c\u0346\u034d\u032c\u032d\u032d\u033a\u0349\u0323r\u0334\u0350\u0354\u034do\u0334\u0360\u0307\u0324\u0330t\u0335\u0351\u0330\u0318o\u0336\u0303\u034d\u0347c\u0336\u0352\u031fo\u0336\u034b\u032a\u0333l\u0336\u0311\u0317 \u0334\u0343\u0358\u032eA\u0334\u0346\u031e\u0317p\u0337\u0307\u0344\u0355\u0322e\u0335\u0304\u033f\u034dr\u0336\u0341\u0301\u0329i\u0334\u0350\u0342\u0327\u0330o\u0338\u0358\u0310\u0359\u0316n\u0334\u034b\u031e\u033a",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "P\u0338\u030c\u0310\u031a\u033e\u030c\u0346\u034d\u032c\u032d\u032d\u033a\u0349\u0323r\u0334\u0350\u0354\u034do\u0334\u0360\u0307\u0324\u0330t\u0335\u0351\u0330\u0318o\u0336\u0303\u034d\u0347c\u0336\u0352\u031fo\u0336\u034b\u032a\u0333l\u0336\u0311\u0317 \u0334\u0343\u0358\u032eA\u0334\u0346\u031e\u0317p\u0337\u0307\u0344\u0355\u0322e\u0335\u0304\u033f\u034dr\u0336\u0341\u0301\u0329i\u0334\u0350\u0342\u0327\u0330o\u0338\u0358\u0310\u0359\u0316n\u0334\u034b\u031e\u033a"
         },
         {
             "designation": "Assassin",
@@ -2462,19 +2291,13 @@
             "oldhim": "Oldhim",
             "prism": "Prism",
             "shiyana": "Shiyana",
-            "title": "Unity in Light",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Unity in Light"
         },
         {
             "description": "Iyslander embarks on a journey to uncover forgotten memories...",
             "iyslander": "Iyslander",
             "kind": "story",
-            "title": "Journey into the Forgotten",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "Journey into the Forgotten"
         },
         {
             "kind": "regionData",
@@ -2484,10 +2307,7 @@
             "azalea": "Azalea",
             "description": "The Ace in the Hole takes out some pesky arms dealers...",
             "kind": "story",
-            "title": "A Bird in the Hand",
-            "origin": "official",
-            "universeRating": "10",
-            "userRating": "10"
+            "title": "A Bird in the Hand"
         },
         {
             "kind": "regionData",

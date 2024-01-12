@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Generated Story</title>
 </head>
@@ -7,6 +7,22 @@
 <h1>Generated Story</h1>
 {% if generated_story %}
 <p>{{ generated_story|safe }}</p>
+<form action="/submitStory" method="post">
+    <input type="hidden" name="generated_story" value="{{ generated_story|safe }}">
+    <input type="hidden" name="title" value="{{ title|safe }}">
+    <input type="hidden" name="description" value="{{ description|safe }}">
+    {% for character in participatingCharacters %}
+    <input type="hidden" name="participatingCharacters" value="{{ character|safe }}">
+    {% endfor %}
+
+    <label for="userRating">How well do you like the story personally? (1-10):</label>
+    <input type="number" id="userRating" name="userRating" min="1" max="10" required>
+
+    <label for="universeRating">How well do you think this story fits the overall theme and universe of the World? (1-10):</label>
+    <input type="number" id="universeRating" name="universeRating" min="1" max="10" required>
+
+    <input type="submit" value="Approve Story">
+    <input type="button" value="Disapprove Story" onclick="location.href='/prepareStory'"></form>
 {% else %}
 <p>No story generated or story is empty.</p>
 {% endif %}

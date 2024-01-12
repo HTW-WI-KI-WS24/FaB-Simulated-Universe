@@ -1,5 +1,6 @@
 import os
 import uuid
+from urllib.parse import urlencode
 
 import openai
 from flask import Flask, request, flash, render_template, redirect, url_for, current_app
@@ -19,13 +20,13 @@ app.secret_key = app_secret_key
 
 # Global variables
 chromadb_service_url = 'http://heroes-persistence:8082'
-getPersonaUrl = f'{chromadb_service_url}/getHero/'
 personaList = []
 
 
 @app.route('/unfinishedHeroes')
 def showPlaceholderPersonalities():
-    json_data = get_json_response(f'{chromadb_service_url}/getAllPlaceholders', "Failed to retrieve heroes")
+    json_data = get_json_response(f'{chromadb_service_url}/getHeroes?personality=Placeholder', "Failed to retrieve "
+                                                                                               "heroes")
     heroes = [{"id": id, **metadata} for id, metadata in zip(json_data.get('heroes', {}).get('ids', []),
                                                              json_data.get('heroes', {}).get('metadatas', []))] \
         if json_data else []
@@ -42,7 +43,7 @@ def generatePersonality():
     }
     current_app.logger.info(f"Received hero data: {hero_data}")
 
-    response = requests.get(chromadb_service_url + "/getStoriesWithHero/" + hero_data['name'])
+    response = requests.get(chromadb_service_url + "/getStories?hero=" + hero_data['name'])
     if response.status_code == 200:
         stories_response = response.json().get('stories', {})
         stories_documents = stories_response.get('documents', [])
@@ -138,7 +139,7 @@ def updateHero():
 
 @app.route('/prepareStory', methods=['GET'])
 def createConversation():
-    json_data = get_json_response(f'{chromadb_service_url}/getAllHeroes', "Failed to retrieve heroes")
+    json_data = get_json_response(f'{chromadb_service_url}/getHeroes', "Failed to retrieve heroes")
     if json_data:
         hero_metadatas = json_data.get('heroes', {}).get('metadatas', [])
         hero_names_set = {hero['name'] for hero in hero_metadatas}  # Use a set for unique names
@@ -156,6 +157,9 @@ def sendConversation():
     region = request.form['selectedRegion']
     settingDetails = request.form['settingDetails']
     styles = ', '.join(request.form['selectedStyles'].split(','))
+
+    if check_valid_prompt(settingDetails) == 'No':
+        return render_template("invalidStoryDetails.html")
 
     character_query_response = query_interacting_heroes(participatingCharacters)
     region_query_response = query_region(region, settingDetails, styles)
@@ -189,44 +193,74 @@ def sendConversation():
 
     current_app.logger.info(f"Generated prompt: {prompt}")
     generated_story = generate_story_with_openai(prompt)
+    current_app.logger.info(f"Generated story: {generated_story}")
     title, description = parse_title_and_description(generated_story)
+    current_app.logger.info(f"Parsed title: {title}")
+    current_app.logger.info(f"Parsed description: {description}")
+    current_app.logger.info(f"Generated story after parse: {generated_story}")
+
+    return render_template("generateStory.html",
+                           generated_story=generated_story,
+                           title=title,
+                           description=description,
+                           participatingCharacters=participatingCharacters)
+
+
+@app.route('/submitStory', methods=['POST'])
+def submitStory():
+    generated_story = request.form['generated_story']
+    title = request.form['title']
+    description = request.form['description']
+    participatingCharacters = request.form.getlist('participatingCharacters')
+    universe_rating = request.form['universeRating']
+    user_rating = request.form['userRating']
+
+    # Generate a new UUID for the story
+    story_id = generate_uuid(title)
 
     # Create the JSON payload for saving the story
-    story_id = generate_uuid(title)  # Generate a new UUID for the story
     story_data = {
         'documents': [generated_story],
         'metadatas': [{
             'kind': 'story',
             'title': title,
             'description': description,
-            **{character.lower(): character for character in participatingCharacters}
+            'universeRating': universe_rating,
+            'userRating': user_rating,
+            **{character.lower(): character for character in participatingCharacters},
+            'origin': 'generated'
         }],
         'ids': [story_id]
     }
 
+    current_app.logger.info(f"Story approved with Universe Rating: {universe_rating} and User Rating: {user_rating}")
     current_app.logger.info(f"Sending data to persistence service: {story_data}")
+
     # Send the story data to the /saveStory endpoint
     save_story_response = requests.post(
-        f'http://persona-persistence:8082/saveStory',
+        f'{chromadb_service_url}/saveStory',
         json=story_data
     )
 
     # Check if the story was saved successfully
     if save_story_response.status_code == 200:
         flash('Story saved successfully!')
+        return redirect(url_for('prepareStory'))
     else:
         flash('Failed to save story. Please try again.')
-
-    return render_template("generateStory.html", generated_story=generated_story, story_data=story_data)
+        return redirect(url_for('prepareStory'))
 
 
 def get_story(title):
-    url = chromadb_service_url + "/getStory/" + title
+    # URL encode the title to handle spaces and special characters
+    params = urlencode({'title': title})
+    url = chromadb_service_url + "/getStories?" + params
+
     response = requests.get(url)
 
     if response.status_code == 200:
         data = response.json()
-        documents = data.get('story', {}).get('documents', [])
+        documents = data.get('stories', {}).get('documents', [])
         return documents
     else:
         print("Failed to retrieve story or story not found")
@@ -270,12 +304,43 @@ def query_region(region, setting, style):
         return None
 
 
+# Probably not needed - GPT automatically checks for harmful content.
+def check_valid_prompt(prompt):
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {openai.api_key}"}
+    payload = {
+        "model": "gpt-3.5-turbo-1106", "temperature": 0.2,
+        "messages": [{"role": "user", "content": f"I will give you a short sentence or text which will be used "
+                                                 f"to enhance story generation from GPT with a detailed "
+                                                 f"wish from the user of something that should happen in the story. "
+                                                 f"Your job is to determine whether or not the users wish is deemed "
+                                                 f"socially acceptable. For example, people dying is okay, but people "
+                                                 f"being raped would not be. "
+                                                 f"It is imperative that your reply is a one-word reply: Either Yes if "
+                                                 f"the wish is okay, or No if the wish is not okay. Here is the prompt:"
+                                                 f"\n\n{prompt}\n\n Remember to answer either Yes or No."
+                      }],
+        "max_tokens": 500
+    }
+    try:
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        if response.status_code == 200:
+            response_json = response.json()
+            return response_json['choices'][0]['message']['content'] if response_json.get('choices') else 'No content'
+        else:
+            current_app.logger.error(
+                f"Error from GPT API: Status Code {response.status_code}, Response: {response.text}")
+            return f"Error generating story. API response status: {response.status_code}"
+    except Exception as e:
+        current_app.logger.error(f"Error generating story: {e}")
+        return f"Error generating story: {e}"
+
+
 def generate_story_with_openai(prompt):
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {openai.api_key}"}
     payload = {
         "model": "gpt-4-1106-preview", "temperature": 0.8,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 2000
+        "max_tokens": 3000
     }
     try:
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)

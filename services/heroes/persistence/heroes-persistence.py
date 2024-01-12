@@ -8,119 +8,10 @@ import json
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
-# chroma_client.delete_collection(name="test")
+# chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
 # testCollection = chroma_client.get_or_create_collection(name="test", embedding_function=default_ef)
 app = Flask(__name__)
-
-
-def generate_uuid(name):
-    # Generate a UUID based on the SHA-1 hash of a namespace identifier and a name
-    name_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, name)
-    return str(name_uuid)
-
-
-@app.route('/pullScrapedWorld', methods=['POST'])
-def pullScrapedWorld():
-    try:
-        data = request.get_json()
-        if not data:
-            return "No data received", 400
-
-        for region in data:
-            ### check if already exists
-            results = fabCollection.get(
-                where={"text": region['text']},
-                include=["metadatas"]
-            )
-            if len(results["ids"]) > 0:
-                print("Region Data already exists. Skipping...")
-            else:
-                regionData_id = generate_uuid(region['text'])
-                fabCollection.add(
-                    documents=[region['text']],
-                    metadatas=[{"kind": "regionData", "region": region['name']}],
-                    ids=[regionData_id]
-                )
-                current_app.logger.info(
-                    f"Region Data added to ChromaDB Collection with UUID: {regionData_id} from Region: {region['name']} "
-                    f"and Text: {region['text']}")
-        return jsonify({'message': 'World data received successfully', 'worldData': data})
-    except Exception as e:
-        current_app.logger.error(f"Error while processing World Data: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/pullScrapedHeroes', methods=['POST'])
-def pullScrapedHeroes():
-    try:
-        data = request.get_json()
-        if not data:
-            return "No data received", 400
-
-        for hero in data:
-            ### check if already exists
-            results = fabCollection.get(
-                where={"text": hero['text']},
-                include=["metadatas"]
-            )
-            if len(results["ids"]) > 0:
-                print("Hero already exists. Skipping...")
-            else:
-                hero_id = generate_uuid(hero['text'])
-                fabCollection.add(
-                    documents=["The Heros name is " + hero['name'] + ". They have the following short description: " +
-                               hero['text'] + ". Their Talent/Class is " + hero['designation'] + "."],
-                    metadatas=[
-                        {"kind": "hero", "name": hero['name'], "text": hero['text'], "designation": hero['designation'],
-                         "personality": "Placeholder"}],
-                    ids=[str(hero_id)]
-                )
-                current_app.logger.info(
-                    f"Hero added to ChromaDB Collection with ID: {hero_id} and Name: {hero['name']}")
-
-        return jsonify({'message': 'Hero data received successfully', 'heroesData': data})
-    except Exception as e:
-        current_app.logger.error(f"Error while processing heroes: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/pullScrapedStories', methods=['POST'])
-def pullScrapedStories():
-    try:
-        data = request.get_json()
-        if not data:
-            return "No data received", 400
-
-        for story in data:
-            ### check if already exists
-            results = fabCollection.get(
-                where={"title": story['title']},
-                include=["metadatas"]
-            )
-            if len(results["ids"]) > 0:
-                print("Story already exists. Skipping...")
-            else:
-                story_id = generate_uuid(story['title'])
-                # Prepare metadata with title and description
-                metadata = {"kind": "story", "title": story['title'], "description": story['description']}
-                # Add each hero as a key-value pair in metadata
-                if 'heroes' in story:
-                    for hero in story['heroes']:
-                        metadata[hero.lower()] = hero
-
-                # Add the story with updated metadata to fabCollection
-                fabCollection.add(
-                    documents=[story['text']],
-                    metadatas=[metadata],
-                    ids=[str(story_id)]
-                )
-                current_app.logger.info(f"Story added with ID: {story_id} and Title: {story['title']}")
-
-        return jsonify({'message': 'Story data received successfully', 'storiesData': data})
-    except Exception as e:
-        current_app.logger.error(f"Error while processing stories: {e}")
-        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/createHero', methods=['POST'])
@@ -153,54 +44,68 @@ def saveStory():
         return jsonify({'error': str(e)}), 500
 
 
+# To get all heroes: GET /getHeroes
+# To get a specific hero by name: GET /getHeroes?name=[hero_name]
+# To get heroes without generated personality: GET /getHeroes?personality=Placeholder
+@app.route('/getHeroes', methods=['GET'])
+def getHeroes():
+    name = request.args.get('name', default=None)
+    personality = request.args.get('personality', default=None)
 
-@app.route('/getAllHeroes', methods=['GET'])
-def getAllHeroes():
-    # Abfragen aller Personas in der Collection
-    heroes = fabCollection.get(
-        where={"kind": "hero"}
-    )
-    print(heroes)
+    # Choosing the query based on parameters
+    if name:
+        query = {'name': name}
+    elif personality:
+        query = {'personality': personality}
+    else:
+        query = {'kind': 'hero'}
+
+    # Fetching heroes based on the constructed query
+    heroes = fabCollection.get(where=query)
     return jsonify({'heroes': heroes})
 
 
-@app.route('/getAllPlaceholders', methods=['GET'])
-def getAllPlaceholders():
-    heroes = fabCollection.get(
-        where={"personality": "Placeholder"}
-    )
-    return jsonify({'heroes': heroes})
+# To get all stories: GET /getStories
+# To get all official stories: GET /getStories?origin=official
+# To get all generated stories: GET /getStories?origin=generated
+# To get all stories with a specific hero: GET /getStories?hero=[hero_name]
+# To get a story by title: GET /getStories?title=[title]
+@app.route('/getStories', methods=['GET'])
+def getStories():
+    origin = request.args.get('origin', default=None)
+    hero_name = request.args.get('hero', default=None)
+    title = request.args.get('title', default=None)
 
+    # Choose the query based on parameters
+    if hero_name:
+        query = {hero_name.lower(): hero_name}
+    elif origin:
+        query = {'origin': origin}
+    elif title:
+        query = {'title': title}
+    else:
+        query = {'kind': 'story'}
 
-@app.route('/getAllStories', methods=['GET'])
-def getAllStories():
-    # Abfragen aller Personas in der Collection
-    stories = fabCollection.get(
-        where={"kind": "story"}
-    )
+    # Fetching stories based on the constructed query
+    stories = fabCollection.get(where=query)
     return jsonify({'stories': stories})
 
 
-@app.route('/getAllWorldData', methods=['GET'])
-def getAllWorldData():
-    worldData = fabCollection.get(
-        where={"kind": "regionData"}
-    )
-    return jsonify({'worldData': worldData})
+# To get all world data: GET /getWorldData
+# To get world data for a specific region: GET /getWorldData?region=[region_name]
+@app.route('/getWorldData', methods=['GET'])
+def getWorldData():
+    region = request.args.get('region', default=None)
 
-
-@app.route('/getHero/<name>', methods=['GET'])
-def getHero(name):
-    # Durchführen einer Abfrage basierend auf dem Namen der Persona
-    result = fabCollection.get(
-        where={'name': name},
-        include=['embeddings', 'documents', 'metadatas']
-    )
-    if result:
-        return jsonify({'hero': result})
+    # Choose the query based on parameters
+    if region:
+        query = {'region': region}
     else:
-        print("no result")
-        return jsonify({'message': 'hero not found'}), 404
+        query = {'kind': 'regionData'}
+
+    # Fetching world data based on the constructed query
+    worldData = fabCollection.get(where=query)
+    return jsonify({'worldData': worldData})
 
 
 @app.route('/getInteractingHeroes', methods=['GET'])
@@ -277,29 +182,6 @@ def query_chroma_db():
         # Log the error and return an error message
         current_app.logger.error(f"An error occurred while querying the database: {e}")
         return jsonify({'error': str(e)}), 500
-
-
-@app.route('/getStory/<title>', methods=['GET'])
-def getStory(title):
-    result = fabCollection.get(
-        where={'title': title},
-    )
-    if result:
-        return jsonify({'story': result})
-    else:
-        return jsonify({'message': 'story not found'}), 404
-
-
-@app.route('/getStoriesWithHero/<name>', methods=['GET'])
-def getStoryWithHero(name):
-    result = fabCollection.get(
-        where={name.lower(): name},
-        include=['embeddings', 'documents', 'metadatas']
-    )
-    if result:
-        return jsonify({'stories': result})
-    else:
-        return jsonify({'message': 'story not found'}), 404
 
 
 @app.route('/updateHero', methods=['POST'])
@@ -429,6 +311,115 @@ def loadCollection(name):
     except Exception as e:
         current_app.logger.error(f"Error loading collection data: {str(e)}")
         return jsonify({'error': 'Failed to load collection data'}), 500
+
+
+@app.route('/pullScrapedWorld', methods=['POST'])
+def pullScrapedWorld():
+    try:
+        data = request.get_json()
+        if not data:
+            return "No data received", 400
+
+        for region in data:
+            ### check if already exists
+            results = fabCollection.get(
+                where={"text": region['text']},
+                include=["metadatas"]
+            )
+            if len(results["ids"]) > 0:
+                print("Region Data already exists. Skipping...")
+            else:
+                regionData_id = generate_uuid(region['text'])
+                fabCollection.add(
+                    documents=[region['text']],
+                    metadatas=[{"kind": "regionData", "region": region['name']}],
+                    ids=[regionData_id]
+                )
+                current_app.logger.info(
+                    f"Region Data added to ChromaDB Collection with UUID: {regionData_id} from Region: {region['name']} "
+                    f"and Text: {region['text']}")
+        return jsonify({'message': 'World data received successfully', 'worldData': data})
+    except Exception as e:
+        current_app.logger.error(f"Error while processing World Data: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/pullScrapedHeroes', methods=['POST'])
+def pullScrapedHeroes():
+    try:
+        data = request.get_json()
+        if not data:
+            return "No data received", 400
+
+        for hero in data:
+            # check if already exists
+            results = fabCollection.get(
+                where={"text": hero['text']},
+                include=["metadatas"]
+            )
+            if len(results["ids"]) > 0:
+                print("Hero already exists. Skipping...")
+            else:
+                hero_id = generate_uuid(hero['text'])
+                fabCollection.add(
+                    documents=["The Heros name is " + hero['name'] + ". They have the following short description: " +
+                               hero['text'] + ". Their Talent/Class is " + hero['designation'] + "."],
+                    metadatas=[
+                        {"kind": "hero", "name": hero['name'], "text": hero['text'], "designation": hero['designation'],
+                         "personality": "Placeholder"}],
+                    ids=[str(hero_id)]
+                )
+                current_app.logger.info(
+                    f"Hero added to ChromaDB Collection with ID: {hero_id} and Name: {hero['name']}")
+
+        return jsonify({'message': 'Hero data received successfully', 'heroesData': data})
+    except Exception as e:
+        current_app.logger.error(f"Error while processing heroes: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/pullScrapedStories', methods=['POST'])
+def pullScrapedStories():
+    try:
+        data = request.get_json()
+        if not data:
+            return "No data received", 400
+
+        for story in data:
+            ### check if already exists
+            results = fabCollection.get(
+                where={"title": story['title']},
+                include=["metadatas"]
+            )
+            if len(results["ids"]) > 0:
+                print("Story already exists. Skipping...")
+            else:
+                story_id = generate_uuid(story['title'])
+                # Prepare metadata with title and description
+                metadata = {"kind": "story", "title": story['title'], "description": story['description']}
+                # Add each hero as a key-value pair in metadata
+                if 'heroes' in story:
+                    for hero in story['heroes']:
+                        metadata[hero.lower()] = hero
+
+                # Add the story with updated metadata to fabCollection
+                fabCollection.add(
+                    documents=[story['text']],
+                    metadatas=[metadata],
+                    ids=[str(story_id)]
+                )
+                current_app.logger.info(f"Story added with ID: {story_id} and Title: {story['title']}")
+
+        return jsonify({'message': 'Story data received successfully', 'storiesData': data})
+    except Exception as e:
+        current_app.logger.error(f"Error while processing stories: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+def generate_uuid(name):
+    # Generate a UUID based on the SHA-1 hash of a namespace identifier and a name
+    name_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, name)
+    return str(name_uuid)
 
 
 if __name__ == '__main__':
