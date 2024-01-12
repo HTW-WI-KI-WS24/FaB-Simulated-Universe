@@ -1,36 +1,54 @@
 import os
+import uuid
+
 import openai
 from flask import Flask, request, flash, render_template, redirect, url_for, current_app
 import requests
 from dotenv import load_dotenv
+import re
 
+# Load environment variables
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 app_secret_key = os.getenv('APP_SECRET_KEY')
 openai.api_key = api_key
 
+# Flask app setup
 app = Flask(__name__)
 app.secret_key = app_secret_key
 
+# Global variables
 chromadb_service_url = 'http://persona-persistence:8082'
-getPersonaUrl = 'http://persona-persistence:8082/getHero/'
+getPersonaUrl = f'{chromadb_service_url}/getHero/'
 personaList = []
+
+
+# Helper functions
+def get_json_response(url, error_message="Failed to retrieve data"):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        flash(error_message)
+        return None
+
+
+def post_json(url, json_data, headers):
+    try:
+        response = requests.post(url, json=json_data, headers=headers)
+        return response if response.status_code == 200 else None
+    except requests.exceptions.RequestException as e:
+        current_app.logger.error(f"Request to {url} failed: {e}")
+        return None
 
 
 @app.route('/showPlaceholders')
 def showPlaceholderPersonalities():
-    response = requests.get(chromadb_service_url + "/getAllPlaceholders")
-    if response.status_code == 200:
-        data = response.json()
-        ids = data.get('heroes', {}).get('ids', [])
-        metadatas = data.get('heroes', {}).get('metadatas', [])
-        heroes = [{"id": id, **metadata} for id, metadata in zip(ids, metadatas)]
-    else:
-        heroes = []
-        flash("Failed to retrieve heroes")
-
+    json_data = get_json_response(f'{chromadb_service_url}/getAllPlaceholders', "Failed to retrieve heroes")
+    heroes = [{"id": id, **metadata} for id, metadata in zip(json_data.get('heroes', {}).get('ids', []),
+                                                             json_data.get('heroes', {}).get('metadatas', []))] \
+        if json_data else []
     return render_template('unfinishedHeroes.html', heroes=heroes)
-
 
 
 @app.route('/generatePersonality', methods=['POST'])
@@ -101,7 +119,8 @@ def generatePersonality():
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
         if response.status_code == 200:
             response_json = response.json()
-            generated_personality = response_json['choices'][0]['message']['content'] if response_json.get('choices') else 'No content'
+            generated_personality = response_json['choices'][0]['message']['content'] if response_json.get(
+                'choices') else 'No content'
             current_app.logger.info(f"Generated personality: {generated_personality}")
         else:
             error_message = f"Error from GPT API: Status Code {response.status_code}, Response: {response.text}"
@@ -135,72 +154,92 @@ def updateHero():
 
     return redirect(url_for('showPlaceholderPersonalities'))
 
+
 @app.route('/createConversation', methods=['GET'])
 def createConversation():
-    # Fetch hero names
-    response = requests.get(chromadb_service_url + '/getAllHeroes')
-    if response.status_code == 200:
-        heroes_data = response.json().get('heroes', {}).get('metadatas', [])
-        hero_names = [hero['name'] for hero in heroes_data]
+    json_data = get_json_response(f'{chromadb_service_url}/getAllHeroes', "Failed to retrieve heroes")
+    if json_data:
+        hero_metadatas = json_data.get('heroes', {}).get('metadatas', [])
+        hero_names_set = {hero['name'] for hero in hero_metadatas}  # Use a set for unique names
+        hero_names = list(hero_names_set)  # Convert the set back to a list for rendering
+        hero_names.sort()
     else:
         hero_names = []
-        flash("Failed to retrieve heroes")
-
     return render_template('createConversation.html', hero_names=hero_names)
 
-# TODO query the database for hero interactions
+
 @app.route('/sendConversation', methods=['POST'])
 def sendConversation():
-    worldbuilding = get_story_documents("The Land of Rathe")
-    participatingCharacters = request.form.getlist('selectedHeroes')
-    setting = request.form['setting']
-    styles = request.form.getlist('selectedStyles')
-    style = ', '.join(styles)
-    # queriedCharacterData = make a request to a persistence endpoint that queries for interactions between heroes
+    Worldbuilding = get_story("The Land of Rathe")
+    participatingCharacters = request.form['selectedHeroes'].split(',')
+    region = request.form['selectedRegion']
+    settingDetails = request.form['settingDetails']
+    styles = ', '.join(request.form['selectedStyles'].split(','))
 
-    prompt = ("I want you to write a story set in this world:\n".join(worldbuilding) +
-              "\nThe Characters for this story are:\n" + ', '.join(participatingCharacters) +
-              "\n\nThe Setting should be " + setting +
-              "\nAnd the story should be written to be very " + style + "."
-              "\nHere is additional information about the characters: " + queriedCharacterData
-              "\nWrite about 500-1000 words.")
+    character_query_response = query_interacting_heroes(participatingCharacters)
+    region_query_response = query_region(region, settingDetails, styles)
+
+    # Process queriedCharacterData to handle nested list structure
+    queriedCharacterData_list = character_query_response.get('documents', []) if character_query_response else []
+    queriedCharacterData = ""
+    if queriedCharacterData_list and isinstance(queriedCharacterData_list[0], list):
+        queriedCharacterData = ' '.join(queriedCharacterData_list[0])
+    else:
+        queriedCharacterData = "No additional character data found."
+
+    # Process Region Data in a similar way
+    queriedRegionData_list = region_query_response.get('documents', []) if region_query_response else []
+    queriedRegionData = ""
+    if queriedRegionData_list and isinstance(queriedRegionData_list[0], list):
+        queriedRegionData = ' '.join(queriedRegionData_list[0])
+    else:
+        queriedRegionData = "No additional region data found."
+
+    prompt = f"I want you to write a story set in this world:\n{Worldbuilding}\n" \
+             f"It is set in a region called {region}. Here is some additional information about {region}:\n" \
+             f"{queriedRegionData}\n" \
+             f"The Characters for this story are:\n{', '.join(participatingCharacters)}\n" \
+             f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
+             f"Here is something I definitely want for the story: {settingDetails}\n" \
+             f"The story should be written to be {styles}.\n" \
+             f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
+             f"<a title>\nDescription: <a description in one sentence>, " \
+             f"Title and Description should be the last two lines of your messages."
 
     current_app.logger.info(f"Generated prompt: {prompt}")
+    generated_story = generate_story_with_openai(prompt)
+    title, description = parse_title_and_description(generated_story)
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {openai.api_key}"
-    }
-    current_app.logger.info(f"Sending Data to gpt-4")
-    payload = {
-        "model": "gpt-4-1106-preview",
-        "temperature": 0.8,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "max_tokens": 2000
+    # Create the JSON payload for saving the story
+    story_id = generate_uuid(title)  # Generate a new UUID for the story
+    story_data = {
+        'documents': [generated_story],
+        'metadatas': [{
+            'kind': 'story',
+            'title': title,
+            'description': description,
+            **{character.lower(): character for character in participatingCharacters}
+        }],
+        'ids': [story_id]
     }
 
-    try:
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        if response.status_code == 200:
-            response_json = response.json()
-            generated_story = response_json['choices'][0]['message']['content'] if response_json.get('choices') else 'No content'
-            current_app.logger.info(f"Generated story: {generated_story}")
-        else:
-            error_message = f"Error from GPT API: Status Code {response.status_code}, Response: {response.text}"
-            current_app.logger.error(error_message)
-            generated_story = f"Error generating story. API response status: {response.status_code}"
-    except Exception as e:
-        current_app.logger.error(f"Error generating story: {e}")
-        generated_story = f"Error generating story: {e}"
+    current_app.logger.info(f"Sending data to persistence service: {story_data}")
+    # Send the story data to the /saveStory endpoint
+    save_story_response = requests.post(
+        f'http://persona-persistence:8082/saveStory',
+        json=story_data
+    )
 
-    return render_template("generatedStory.html", generated_story=generated_story)
+    # Check if the story was saved successfully
+    if save_story_response.status_code == 200:
+        flash('Story saved successfully!')
+    else:
+        flash('Failed to save story. Please try again.')
 
-def get_story_documents(title):
+    return render_template("generatedStory.html", generated_story=generated_story, story_data=story_data)
+
+
+def get_story(title):
     url = chromadb_service_url + "/getStory/" + title
     response = requests.get(url)
 
@@ -211,6 +250,87 @@ def get_story_documents(title):
     else:
         print("Failed to retrieve story or story not found")
         return []
+
+
+def query_interacting_heroes(character_list):
+    query_text = "What are interactions between " + ", ".join(character_list)
+    n_results = len(character_list) + 5
+    try:
+        response = requests.post(
+            chromadb_service_url + '/queryChromaDB',
+            json={'query_texts': [query_text], 'n_results': n_results},
+            headers={"Content-Type": "application/json"}
+        )
+        return response.json() if response.status_code == 200 else None
+    except Exception as e:
+        current_app.logger.error(f"Error querying character interactions: {e}")
+        return None
+
+
+def query_region(region, setting, style):
+    query_text = "Give me some information about " + region + " in regards to " + setting + " in a " + style + " Style."
+    n_results = 10
+
+    # Check for specific region names and adjust if necessary
+    if region == "The Demonastery":
+        region = "Demonastery"
+    elif region == "The Pits":
+        region = "Pits"
+
+    try:
+        response = requests.post(
+            chromadb_service_url + '/queryChromaDB',
+            json={'query_texts': [query_text], 'n_results': n_results, 'where': {"region": region}},
+            headers={"Content-Type": "application/json"}
+        )
+        return response.json() if response.status_code == 200 else None
+    except Exception as e:
+        current_app.logger.error(f"Error querying region information: {e}")
+        return None
+
+
+def generate_story_with_openai(prompt):
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {openai.api_key}"}
+    payload = {
+        "model": "gpt-4-1106-preview", "temperature": 0.8,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 2000
+    }
+    try:
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        if response.status_code == 200:
+            response_json = response.json()
+            return response_json['choices'][0]['message']['content'] if response_json.get('choices') else 'No content'
+        else:
+            current_app.logger.error(
+                f"Error from GPT API: Status Code {response.status_code}, Response: {response.text}")
+            return f"Error generating story. API response status: {response.status_code}"
+    except Exception as e:
+        current_app.logger.error(f"Error generating story: {e}")
+        return f"Error generating story: {e}"
+
+
+def parse_title_and_description(story_text):
+    # Regular expression pattern to match the title and description
+    pattern = r'\nTitle: (.+)\nDescription: (.+)$'
+
+    # Search for the pattern at the end of the string
+    match = re.search(pattern, story_text)
+
+    # If a match is found, extract title and description
+    if match:
+        title = match.group(1).strip()
+        description = match.group(2).strip()
+        return title, description
+    else:
+        # If no match is found, return None or some default values
+        return None, None
+
+
+def generate_uuid(name):
+    # Generate a UUID based on the SHA-1 hash of a namespace identifier and a name
+    name_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, name)
+    return str(name_uuid)
 
 
 if __name__ == '__main__':

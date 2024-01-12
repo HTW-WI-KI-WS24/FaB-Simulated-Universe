@@ -44,20 +44,21 @@ def scrape_region_details(region_url, headers):
     content_list = []  # Use a list to store unique content in order
 
     for div in rich_text_divs:
-        elements = div.find_all(["p", "h4"])  # Get all paragraphs and headers
+        # Include h3 in the list of elements to find
+        elements = div.find_all(["h3", "h4", "p"])
         current_header = ""
 
         for element in elements:
-            if element.name == "h4":
+            if element.name in ["h3", "h4"]:
                 current_header = element.get_text(strip=True) + ":"
             elif element.name == "p":
                 paragraph_text = element.get_text(strip=True)
                 combined_text = f"{current_header} {paragraph_text}" if current_header else paragraph_text
-                if combined_text not in content_list:  # Check if the paragraph is not already in the list
+                if combined_text not in content_list:
                     content_list.append(combined_text)
                     current_header = ""  # Reset the header after using it
 
-    return content_list  # Return the ordered list
+    return content_list
 
 
 # world_data = scrape_world(base_url)

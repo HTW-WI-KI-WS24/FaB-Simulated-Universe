@@ -43,7 +43,7 @@ services:
       - .env
 
   chroma_db:
-    image: chroma:latest
+    image: chromadb/chroma:latest
     container_name: local-chromadb
     ports:
       - "8083:8000"
