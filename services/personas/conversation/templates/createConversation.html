@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Create Conversation</title>
     <script>
@@ -43,15 +43,51 @@
             updateHiddenInputs();
         }
 
+        function addRegion() {
+            var dropdown = document.getElementById("regionSelect");
+            var selectedRegion = dropdown.options[dropdown.selectedIndex].value;
+
+            // Clear any existing region selection
+            document.getElementById('selectedRegion').innerHTML = '';
+
+            var regionDiv = document.createElement('div');
+            regionDiv.classList.add('region-list-item');
+            regionDiv.innerText = selectedRegion;
+
+            document.getElementById('selectedRegion').appendChild(regionDiv);
+            updateHiddenInputs();
+        }
+
+        function updateRegionSelection() {
+            var dropdown = document.getElementById("regionSelect");
+            var selectedRegion = dropdown.options[dropdown.selectedIndex].value;
+
+            // Clear any existing region selection
+            document.getElementById('selectedRegion').innerHTML = '';
+
+            var regionDiv = document.createElement('div');
+            regionDiv.classList.add('region-list-item');
+            regionDiv.innerText = selectedRegion;
+
+            document.getElementById('selectedRegion').appendChild(regionDiv);
+            updateHiddenInputs();
+        }
+
         function updateHiddenInputs() {
             var selectedHeroes = Array.from(document.getElementById('selectedHeroes').children)
                 .map(div => div.textContent.replace('Remove', '').trim());
-            document.getElementById('hiddenSelectedHeroes').value = JSON.stringify(selectedHeroes);
+            document.getElementById('hiddenSelectedHeroes').value = selectedHeroes.join(',');
 
             var selectedStyles = Array.from(document.getElementById('selectedStyles').children)
                 .map(div => div.textContent.replace('Remove', '').trim());
-            document.getElementById('hiddenSelectedStyles').value = JSON.stringify(selectedStyles);
+            document.getElementById('hiddenSelectedStyles').value = selectedStyles.join(',');
+
+            document.getElementById('hiddenSelectedRegion').value = document.getElementById('selectedRegion').textContent.trim(); // Ensure this id matches the hidden input field
         }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            updateHiddenInputs();
+        });
     </script>
 </head>
 <body>
@@ -71,11 +107,12 @@
 
     <label for="styleSelect">The Style the story should be in (select one or more):</label><br>
     <select id="styleSelect">
-        <option value="Funny">Funny</option>
-        <option value="Realistic">Realistic</option>
+        <option value="Action-Packed">Action-Packed</option>
         <option value="Dark">Dark</option>
         <option value="Fantastical">Fantastical</option>
-        <option value="Action-Packed">Action-Packed</option>
+        <option value="Funny">Funny</option>
+        <option value="Realistic">Realistic</option>
+        <option value="Romantic">Romantic</option>
     </select>
     <button type="button" onclick="addStyle()">Add Style</button><br><br>
 
@@ -84,12 +121,30 @@
         <!-- Dynamically added styles will go here -->
     </div><br>
 
-    <label for="setting">Setting where the story takes place:</label><br>
-    <input type="text" id="setting" name="setting"><br><br>
+    <label for="regionSelect">Select a Region where the story takes place:</label><br>
+    <select id="regionSelect" onchange="updateRegionSelection()">
+        <option value="Aria">Aria</option>
+        <option value="The Demonastery">The Demonastery</option>
+        <option value="Metrix">Metrix</option>
+        <option value="Misteria">Misteria</option>
+        <option value="The Pits">The Pits</option>
+        <option value="Savage Lands">Savage Lands</option>
+        <option value="Solana">Solana</option>
+        <option value="Volcor">Volcor</option>
+    </select><br><br>
+
+    <label>Selected Region:</label><br>
+    <div id="selectedRegion">
+        <!-- Dynamically added region will go here -->
+    </div><br>
+
+    <label for="settingDetails">Something that should definitely be in the story:</label><br>
+    <input type="text" id="settingDetails" name="settingDetails"><br><br>
 
     <!-- Hidden inputs for selected heroes and styles -->
     <input type="hidden" name="selectedHeroes" id="hiddenSelectedHeroes">
     <input type="hidden" name="selectedStyles" id="hiddenSelectedStyles">
+    <input type="hidden" name="selectedRegion" id="hiddenSelectedRegion">
 
     <input type="submit" value="Create Story">
 </form>

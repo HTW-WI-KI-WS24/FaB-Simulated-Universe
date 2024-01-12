@@ -50,7 +50,7 @@ After the containers are up and running, initialize the database:
 ## Roadmap
 
 - [ ] Frontend Styling Enhancements
-- [ ] Advanced Story Generation Features
+- [ ] Generation/Information Adding Feature
 - [ ] Integration with Additional APIs for Richer Content
 
 ## Contributing

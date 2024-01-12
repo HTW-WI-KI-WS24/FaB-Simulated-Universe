@@ -8,18 +8,10 @@ import json
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
-#chroma_client.delete_collection(name="heroes")
+# chroma_client.delete_collection(name="test")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
 # testCollection = chroma_client.get_or_create_collection(name="test", embedding_function=default_ef)
 app = Flask(__name__)
-
-last_id = 0
-
-
-def get_next_id():
-    global last_id
-    last_id += 1
-    return last_id
 
 
 def generate_uuid(name):
@@ -75,7 +67,7 @@ def pullScrapedHeroes():
             if len(results["ids"]) > 0:
                 print("Hero already exists. Skipping...")
             else:
-                hero_id = get_next_id()
+                hero_id = generate_uuid(hero['text'])
                 fabCollection.add(
                     documents=["The Heros name is " + hero['name'] + ". They have the following short description: " +
                                hero['text'] + ". Their Talent/Class is " + hero['designation'] + "."],
@@ -109,7 +101,7 @@ def pullScrapedStories():
             if len(results["ids"]) > 0:
                 print("Story already exists. Skipping...")
             else:
-                story_id = get_next_id()
+                story_id = generate_uuid(story['title'])
                 # Prepare metadata with title and description
                 metadata = {"kind": "story", "title": story['title'], "description": story['description']}
                 # Add each hero as a key-value pair in metadata
@@ -138,9 +130,28 @@ def createPersona():
     fabCollection.add(
         documents=[data['text']],
         metadatas=[{"name": data['name']}],
-        ids=[]
+        ids=[data['ids']]
     )
     return jsonify({'message': 'Hero created successfully', 'heroData': data})
+
+
+@app.route('/saveStory', methods=['POST'])
+def saveStory():
+    data = request.get_json()  # Retrieve JSON payload from the request
+    current_app.logger.info(f"Received story: {data} Saving...")
+    try:
+        # Assuming fabCollection.add is properly implemented to handle adding the story to the database
+        fabCollection.add(
+            documents=data['documents'],
+            metadatas=data['metadatas'],
+            ids=data['ids']
+        )
+        current_app.logger.info(f"Story saved successfully.")
+        return jsonify({'message': 'Story saved successfully', 'storyData': data})
+    except Exception as e:
+        current_app.logger.error(f"Error saving story: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 
 @app.route('/getAllHeroes', methods=['GET'])
@@ -191,56 +202,82 @@ def getHero(name):
         print("no result")
         return jsonify({'message': 'hero not found'}), 404
 
+
 @app.route('/getInteractingHeroes', methods=['GET'])
 def getInteractingHeroes():
     heroes = request.args.get('heroes')
-    if heroes:
-        heroes_list = heroes.split(',')
-        prompt = "Identify narratives where " + heroes_list[0]
-        if len(heroes_list) > 1:
-            prompt += " and" + " and".join(heroes_list[1:])
-        prompt += " appear in the same context."
-        try:
-            result = fabCollection.query(query_texts=[prompt])
-            current_app.logger.info(f"Query-prompt sent to DB: {prompt}")
-            if result:
-                return jsonify({'interactions between: ' + heroes: result})
-            else:
-                print("no result")
-                return jsonify({'error': 'The query call returned no result'}), 404
-        except Exception as e:
-            error_message = f"Query-request to DB failed: {e}"
-            current_app.logger.error(error_message)
-            return jsonify({'error': error_message}), 500
-    else:
-        print("No heroes provided")
+    if not heroes:
+        current_app.logger.info("No heroes provided")
         return jsonify({'error': 'No heroes provided'}), 400
 
+    heroes_list = heroes.split(',')
+    prompt = "Identify narratives where " + " and ".join(heroes_list) + " appear in the same context."
 
-#@app.route('/getInteractingHeroes', methods=['GET'])
-#def getInteractingHeroes():
-#    heroes = request.args.get('heroes')
-#    if heroes:
-#        heroes_list = heroes.split(',')
-#        prompt = "What interactions did " + heroes_list[0]
-#        if len(heroes_list) > 1:
-#            prompt += " and" + " and".join(heroes_list[1:])
-#        prompt += " have?"
-#        try:
-#            result = fabCollection.query(query_texts=[prompt])
-#           current_app.logger.info(f"Query-promt sent to DB: {prompt}")
-#           if result:
-#                return jsonify({'interactions between: ' + heroes: result})
-#            else:
-#                print("no result")
-#                return jsonify({'error': 'The query call returned no result'}), 404
-#        except Exception as e:
-#            error_message = f"Query-request to DB failed: {e}"
-#            current_app.logger.error(error_message)
-#            return jsonify({'error': error_message}), 500
-#    else:
-#        print("No heroes provided")
-#        return jsonify({'error': 'No heroes provided'}), 400
+    try:
+        # https://docs.trychroma.com/usage-guide#querying-a-collection
+        result = fabCollection.query(
+            query_texts=[prompt],
+            n_results=3,
+            # where={"metadata_field": "is_equal_to_this"},
+            # where_document={"$contains":"search_string"}
+        )
+        current_app.logger.info(f"Query sent to DB: {prompt}")
+
+        if result:
+            return jsonify({'interactions between: ' + heroes: result})
+        else:
+            current_app.logger.info("Query call returned no result")
+            return jsonify({'error': 'The query call returned no result'}), 404
+    except Exception as e:
+        error_message = f"Query-request to DB failed: {e}"
+        current_app.logger.error(error_message)
+        return jsonify({'error': error_message}), 500
+
+
+@app.route('/queryChromaDB', methods=['POST'])
+def query_chroma_db():
+    try:
+        data = request.get_json()
+        query_texts = data.get('query_texts', [])
+        n_results = data.get('n_results', 10)
+
+        current_app.logger.info(f"Received query parameters: {data}")
+
+        # The where and where_document conditions are optional
+        where_conditions = data.get('where', None)  # Default to None if not provided
+        where_document_conditions = data.get('where_document', None)  # Default to None if not provided
+        include_conditions = data.get('include', None)  # Default to None if not provided
+
+        # Construct the query arguments, excluding None values
+        query_args = {
+            'query_texts': query_texts,
+            'n_results': n_results
+        }
+        if where_conditions is not None:
+            query_args['where'] = where_conditions
+        if where_document_conditions is not None:
+            query_args['where_document'] = where_document_conditions
+        if include_conditions is not None:
+            query_args['include'] = include_conditions
+
+        current_app.logger.info(f"Sending query to chroma with arguments: {query_args}")
+
+        result = fabCollection.query(**query_args)
+
+        current_app.logger.info(f"Query result: {result}")
+
+        if result and result.get('documents'):
+            # Return the successful query result
+            return jsonify(result), 200
+        else:
+            current_app.logger.info("No results found for the given query")
+            return jsonify({'message': 'No results found for the given query'}), 200
+
+    except Exception as e:
+        # Log the error and return an error message
+        current_app.logger.error(f"An error occurred while querying the database: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/getStory/<title>', methods=['GET'])
 def getStory(title):
@@ -307,6 +344,7 @@ def deleteHeroByName(name):
 def deleteAllStories():
     fabCollection.delete(where={"kind": "story"})
     return jsonify({'message': 'stories successfully deleted'})
+
 
 @app.route('/deleteAllWorldData', methods=['DELETE'])
 def deleteAllWorldData():
