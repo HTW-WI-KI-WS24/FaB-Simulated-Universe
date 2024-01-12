@@ -25,6 +25,11 @@ name = ""
 messages = []
 chromadb_service_url = 'http://persona-persistence:8082'
 
+@app.route("/home", methods=['GET', 'POST'])
+def home():
+    if request.method == 'GET':
+        return render_template('home.html')
+
 @app.route("/scrapeWorld", methods=['GET', 'POST'])
 def scrapeWorld():
     if request.method == 'POST':

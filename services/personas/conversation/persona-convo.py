@@ -156,13 +156,13 @@ def sendConversation():
     setting = request.form['setting']
     styles = request.form.getlist('selectedStyles')
     style = ', '.join(styles)
-    # queriedCharacterData = make a request to a persistence endpoint that queries for interactions between heroes
+    queriedCharacterData = ''
 
     prompt = ("I want you to write a story set in this world:\n".join(worldbuilding) +
               "\nThe Characters for this story are:\n" + ', '.join(participatingCharacters) +
               "\n\nThe Setting should be " + setting +
               "\nAnd the story should be written to be very " + style + "."
-              "\nHere is additional information about the characters: " + queriedCharacterData
+              "\nHere is additional information about the characters: " + queriedCharacterData +
               "\nWrite about 500-1000 words.")
 
     current_app.logger.info(f"Generated prompt: {prompt}")

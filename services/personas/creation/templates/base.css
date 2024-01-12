@@ -19,10 +19,7 @@
     --vt-c-text-dark-1: var(--vt-c-white);
     --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 
-    --backround-color: #ffffff;
-    --primary-color: #72a0c1;
     --white-responsive: #f7f5f5;
-    --secondary-color: rgba(114,160,193, 0.50) ;
 
     --background-color: #f7f5f5;
     --font-color: #000000;
@@ -45,15 +42,18 @@
 }
 
 
-
 body {
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     min-height: 100vh;
     margin: 0;
-    background-color: #f4f4f4;
+    background-image: url('backgroundFOB.jpg');
+    background-size: cover;
+    background-position: center;
+    background-color: blue;
+
 }
 
 .container {
@@ -121,6 +121,7 @@ button {
 button:hover {
     background-color: #218838;
 }
+
 
 
 @media (min-width: 480px) {
