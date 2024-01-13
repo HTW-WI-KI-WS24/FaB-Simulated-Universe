@@ -21,6 +21,7 @@ app.secret_key = app_secret_key
 # Global variables
 chromadb_service_url = 'http://heroes-persistence:8082'
 personaList = []
+cleaned_story = ""
 
 
 @app.route('/allStories', methods=['GET', 'POST'])
@@ -150,6 +151,7 @@ def prepareStory():
 
 @app.route('/generateStory', methods=['POST'])
 def generateStory():
+    global cleaned_story
     Worldbuilding = get_story("The Land of Rathe")
     participatingCharacters = request.form['selectedHeroes'].split(',')
     region = request.form['selectedRegion']
@@ -193,7 +195,8 @@ def generateStory():
     current_app.logger.info(f"Generated prompt: {prompt}")
     generated_story = generate_with_openai(prompt)
     current_app.logger.info(f"Generated story: {generated_story}")
-    title, description, cleaned_story = extract_title_and_description(generated_story)
+    title, description, story_after_extraction = extract_title_and_description(generated_story)
+    cleaned_story = story_after_extraction
     current_app.logger.info(f"Parsed title: {title}")
     current_app.logger.info(f"Parsed description: {description}")
     current_app.logger.info(f"Generated story after parse: {cleaned_story}")
@@ -214,7 +217,7 @@ def submitStory():
     universe_rating = request.form['universeRating']
     user_rating = request.form['userRating']
 
-    new_heroes = find_new_heroes_in_story(generated_story, specifiedCharacters)
+    new_heroes = find_new_heroes_in_story(cleaned_story, specifiedCharacters)
     participatingCharacters = specifiedCharacters + list(new_heroes)
 
     # Generate a new UUID for the story
@@ -223,7 +226,7 @@ def submitStory():
 
     # Create the JSON payload for saving the story
     story_data = {
-        'documents': [generated_story],
+        'documents': [cleaned_story],
         'metadatas': [{
             'kind': 'story',
             'title': title,
