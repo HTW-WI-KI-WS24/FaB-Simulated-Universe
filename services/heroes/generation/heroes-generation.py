@@ -23,6 +23,36 @@ chromadb_service_url = 'http://heroes-persistence:8082'
 personaList = []
 
 
+@app.route('/allStories', methods=['GET', 'POST'])
+def allStories():
+    origin = request.args.get('origin', 'all')
+    if request.method == 'POST':
+        origin = request.form.get('origin', 'all')
+
+    if origin not in ['all', 'official', 'generated']:
+        origin = 'all'
+
+    stories_endpoint = f'{chromadb_service_url}/getStories'
+    params = {'origin': origin} if origin != 'all' else {}
+    response = requests.get(stories_endpoint, params=params)
+
+    stories = []
+    if response.status_code == 200:
+        json_data = response.json()
+        stories_data = json_data.get('stories', {})
+        metadatas = stories_data.get('metadatas', [])
+        documents = stories_data.get('documents', [])
+
+        # Pair each metadata with its corresponding document
+        for meta, doc in zip(metadatas, documents):
+            meta['document'] = doc
+            stories.append(meta)
+    else:
+        print("Failed to retrieve stories")
+
+    return render_template('allStories.html', stories=stories, origin=origin)
+
+
 @app.route('/unfinishedHeroes')
 def showPlaceholderPersonalities():
     json_data = get_json_response(f'{chromadb_service_url}/getHeroes?personality=Placeholder', "Failed to retrieve "
@@ -138,7 +168,7 @@ def updateHero():
 
 
 @app.route('/prepareStory', methods=['GET'])
-def createConversation():
+def prepareStory():
     json_data = get_json_response(f'{chromadb_service_url}/getHeroes', "Failed to retrieve heroes")
     if json_data:
         hero_metadatas = json_data.get('heroes', {}).get('metadatas', [])
@@ -151,7 +181,7 @@ def createConversation():
 
 
 @app.route('/generateStory', methods=['POST'])
-def sendConversation():
+def generateStory():
     Worldbuilding = get_story("The Land of Rathe")
     participatingCharacters = request.form['selectedHeroes'].split(',')
     region = request.form['selectedRegion']
@@ -194,13 +224,13 @@ def sendConversation():
     current_app.logger.info(f"Generated prompt: {prompt}")
     generated_story = generate_story_with_openai(prompt)
     current_app.logger.info(f"Generated story: {generated_story}")
-    title, description = parse_title_and_description(generated_story)
+    title, description, cleaned_story = extract_title_and_description(generated_story)
     current_app.logger.info(f"Parsed title: {title}")
     current_app.logger.info(f"Parsed description: {description}")
-    current_app.logger.info(f"Generated story after parse: {generated_story}")
+    current_app.logger.info(f"Generated story after parse: {cleaned_story}")
 
     return render_template("generateStory.html",
-                           generated_story=generated_story,
+                           generated_story=cleaned_story,
                            title=title,
                            description=description,
                            participatingCharacters=participatingCharacters)
@@ -356,7 +386,7 @@ def generate_story_with_openai(prompt):
         return f"Error generating story: {e}"
 
 
-def parse_title_and_description(story_text):
+def extract_title_and_description(story_text):
     # Regular expression pattern to match the title and description
     pattern = r'\nTitle: (.+)\nDescription: (.+)$'
 
@@ -367,10 +397,14 @@ def parse_title_and_description(story_text):
     if match:
         title = match.group(1).strip()
         description = match.group(2).strip()
-        return title, description
+
+        # Remove the matched title and description from the story_text
+        modified_text = re.sub(pattern, '', story_text).strip()
+
+        return title, description, modified_text
     else:
         # If no match is found, return None or some default values
-        return None, None
+        return None, None, story_text
 
 
 def generate_uuid(name):

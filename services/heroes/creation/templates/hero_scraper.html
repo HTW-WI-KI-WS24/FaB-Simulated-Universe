@@ -1,28 +1,103 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Hero Scraper</title>
-</head>
-<body>
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
-{% endif %}
-{% endwith %}
-<h1>Scrape Heroes</h1>
-<form method="post">
-    <input type="submit" value="Scrape Heroes">
-</form>
-<ul>
-    {% for hero in heroes %}
-    <li>
-        <h2>{{ hero.name }}</h2>
-        <p>Class: {{ hero.designation }}</p>
-        <p>{{ hero.text }}</p>
-    </li>
-    {% endfor %}
-</ul>
-</body>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <header style="height: 5vh">
+      <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand px-5" href="#">FaB Story Generator</a>
+        <ul class="navbar-nav mr-auto justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:8080/scrapeWorld"
+              >World Scraper</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="http://localhost:8080/scrapeHeroes"
+              >Hero Scraper</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:8080/scrapeStories"
+              >Story Scraper</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:8081/prepareStory"
+              >Story Generator</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:8081/unfinishedHeroes"
+              >Personality Generator</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <div
+      class="d-flex my-auto justify-content-center align-items-center"
+      style="
+        width: 100vw;
+        height: 95vh;
+        background-image: url(https://dhhim4ltzu1pj.cloudfront.net/media/images/map_of_rathe_orig_v1.width-10000.format-webp.webp);
+        background-repeat: no-repeat;
+        background-size: cover;
+      "
+    >
+      <main role="main">
+        <div
+          class="card bg-dark text-white text-center"
+          style="
+            border-radius: 10%;
+            box-shadow: 5px 5px 2px 1px rgb(0, 0, 0, 0.5);
+            max-width: 80vw;
+            max-height: 80vh;
+            position: relative;
+            padding: 5%;
+          "
+        >
+          <div
+            class="card-body p-0 m-0"
+            style="
+              overflow-y: auto;
+              scrollbar-width: none;
+              width: 100%;
+              height: 80%;
+            "
+          >
+            {% with messages = get_flashed_messages() %} {% if messages %} {%
+            for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %} {% endif %} {% endwith %}
+            <h1 class="cover-heading mt-3 mb-4">Scrape Heroes</h1>
+            <form method="post">
+              <button type="submit" method="post" class="btn btn-secondary">
+                Scrape Heroes
+              </button>
+            </form>
+            <ul style="list-style: none; padding: 0">
+              {% for hero in heroes %}
+              <li>
+                <h2>{{ hero.name }}</h2>
+                <p>Class: {{ hero.designation }}</p>
+                <p>{{ hero.text }}</p>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
 </html>
