@@ -53,10 +53,11 @@ def scrape_region_details(region_url, headers):
                 current_header = element.get_text(strip=True) + ":"
             elif element.name == "p":
                 paragraph_text = element.get_text(strip=True)
-                combined_text = f"{current_header} {paragraph_text}" if current_header else paragraph_text
-                if combined_text not in content_list:
-                    content_list.append(combined_text)
-                    current_header = ""  # Reset the header after using it
+                if paragraph_text:  # Check if paragraph_text is not empty
+                    combined_text = f"{current_header} {paragraph_text}" if current_header else paragraph_text
+                    if combined_text.strip() and combined_text not in content_list:  # Check if combined_text is not just whitespace
+                        content_list.append(combined_text)
+                        current_header = ""  # Reset the header after using it
 
     return content_list
 

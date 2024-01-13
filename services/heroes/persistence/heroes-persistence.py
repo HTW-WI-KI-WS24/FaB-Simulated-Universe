@@ -323,11 +323,11 @@ def pullScrapedWorld():
         for region in data:
             ### check if already exists
             results = fabCollection.get(
-                where={"text": region['text']},
+                where_document={"$contains": region['text']},
                 include=["metadatas"]
             )
             if len(results["ids"]) > 0:
-                print("Region Data already exists. Skipping...")
+                current_app.logger.info(f"This Region Data for Region {region['name']} already exists. Skipping...")
             else:
                 regionData_id = generate_uuid(region['text'])
                 fabCollection.add(
@@ -358,7 +358,8 @@ def pullScrapedHeroes():
                 include=["metadatas"]
             )
             if len(results["ids"]) > 0:
-                print("Hero already exists. Skipping...")
+                current_app.logger.info(f"Hero with this Description and Name {hero['name']} already "
+                                        f"exists. Skipping...")
             else:
                 hero_id = generate_uuid(hero['text'])
                 fabCollection.add(
@@ -392,7 +393,7 @@ def pullScrapedStories():
                 include=["metadatas"]
             )
             if len(results["ids"]) > 0:
-                print("Story already exists. Skipping...")
+                current_app.logger.info(f"Story with title {story['title']} already exists. Skipping...")
             else:
                 story_id = generate_uuid(story['title'])
                 # Prepare metadata with title and description

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Stories</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+</head>
+<body>
+    <header style="height: 5vh">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+          <a class="navbar-brand px-5" href="http://localhost:8080/">FaB Story Generator</a>
+          <ul class="navbar-nav mr-auto justify-content-center">
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/scrapeWorld"
+                >Scrape World</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/scrapeHeroes"
+                >Scrape Heroes</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/scrapeStories"
+                >Scrape Stories</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8081/prepareStory"
+                >Story Generator</a
+              >
+            </li>
+              <li class="nav-item">
+                  <a class="nav-link active" href="http://localhost:8081/allStories"
+                  >All Stories</a
+                  >
+              </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8081/unfinishedHeroes"
+                >Personality Generator</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </header>
+<div class="container mt-5">
+    <h1 class="mb-4">Stories</h1>
+    <!-- Filter Buttons -->
+    <div class="mb-3">
+        <form action="/allStories" method="get" class="mb-2">
+            <button type="submit" class="btn btn-info">Show All Stories</button>
+        </form>
+        <form action="/allStories" method="get" class="mb-2">
+            <input type="hidden" name="origin" value="official">
+            <button type="submit" class="btn btn-info">Show Only Official Stories</button>
+        </form>
+        <form action="/allStories" method="get" class="mb-2">
+            <input type="hidden" name="origin" value="generated">
+            <button type="submit" class="btn btn-info">Show Only Generated Stories</button>
+        </form>
+    </div>
+    <div class="row">
+        {% for story in stories %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ story.title }}</h5>
+                    <p class="card-text">{{ story.description }}</p>
+                    <p class="card-text"><small class="text-muted">User Rating: {{ story.userRating }}/10</small></p>
+                    <p class="card-text"><small class="text-muted">Universe Rating: {{ story.universeRating }}/10</small></p>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#collapseStory{{ loop.index }}">
+                        Read More
+                    </button>
+                    <!-- Collapsible content -->
+                    <div id="collapseStory{{ loop.index }}" class="collapse">
+                        <div class="card card-body mt-3">
+                            {{ story.document }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p>No stories available.</p>
+        {% endfor %}
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

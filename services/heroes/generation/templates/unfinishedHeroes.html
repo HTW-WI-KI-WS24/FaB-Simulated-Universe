@@ -2,88 +2,167 @@
 <html>
 <head>
     <title>Unfinished Heroes</title>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+            crossorigin="anonymous"
+    />
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #eee;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Unfinished Heroes</h1>
-    {% if heroes %}
-    <form action="/generatePersonality" method="post">
-        <label for="heroSelect">Choose a Hero:</label>
-        <select name="heroId" id="heroSelect" onchange="updateHeroData(this)">
-            {% for hero in heroes %}
-            <option value="{{ hero.id }}" {% if loop.first %}selected{% endif %}>{{ hero.name }}</option>
-            {% endfor %}
-        </select>
-        <input type="hidden" name="heroName" id="heroName">
-        <input type="hidden" name="heroText" id="heroText">
-        <input type="hidden" name="heroDesignation" id="heroDesignation">
-        <input type="submit" value="Generate Personality">
-    </form>
-    <script>
-        var heroes = {{ heroes|tojson }};
-        console.log("Heroes array:", heroes);  // Check the heroes data
+<header style="height: 5vh">
+    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand px-5" href="http://localhost:8080/">FaB Story Generator</a>
+        <ul class="navbar-nav mr-auto justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/scrapeWorld"
+                >Scrape World</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/scrapeHeroes"
+                >Scrape Heroes</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/scrapeStories"
+                >Scrape Stories</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8081/prepareStory"
+                >Story Generator</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8081/allStories"
+                >All Stories</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="http://localhost:8081/unfinishedHeroes"
+                >Personality Generator</a
+                >
+            </li>
+        </ul>
+    </nav>
+</header>
+<div
+        class="d-flex my-auto justify-content-center align-items-center"
+        style="
+        width: 100vw;
+        height: 95vh;
+        background-image: url(https://cdn.vox-cdn.com/thumbor/LYi3kpKQVd9HrQPpv632sxQDYco=/0x59:3000x1630/fit-in/1200x630/cdn.vox-cdn.com/uploads/chorus_asset/file/24182807/seat_of_the_emperor_cropped.jpg);
+        background-repeat: no-repeat;
+        background-size: cover;
+      "
+>
+    <main role="main">
+        <div
+                class="card bg-dark text-white text-center"
+                style="
+            border-radius: 10%;
+            box-shadow: inset 2px 2px 1px 1px rgb(0, 0, 0, 0.2);
+            max-width: 80vw;
+            max-height: 80vh;
+            position: relative;
+            padding: 5%;
+          "
+        >
+            <div
+                    class="card-body p-0 m-0"
+                    style="
+              overflow-y: auto;
+              scrollbar-width: none;
+              width: 100%;
+              height: 80%;
+            "
+            >
+                <h1>Unfinished Heroes</h1>
+                {% if heroes %}
+                <form action="/generatePersonality" method="post">
+                    <label for="heroSelect">Choose a Hero:</label>
+                    <select
+                            name="heroId"
+                            id="heroSelect"
+                            onchange="updateHeroData(this)"
+                            class="form-control text-center mb-3 bg-dark text-white"
+                            style="width: 70%; margin: auto;"
+                    >
+                        {% for hero in heroes %}
+                        <option
+                                value="{{ hero.id }}"
+                                {%
+                                if
+                                loop.first
+                                %}selected{%
+                                endif
+                                %}
+                        >
+                            {{ hero.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="heroName" id="heroName" class="form-control bg-dark text-white" />
+                    <input type="hidden" name="heroText" id="heroText" class="form-control bg-dark text-white" />
+                    <input
+                            type="hidden"
+                            name="heroDesignation"
+                            id="heroDesignation"
+                            class="form-control bg-dark text-white"
+                    />
+                    <button type="submit" method="post" class="btn btn-secondary shadow-lg">
+                        Generate Personality
+                    </button>
+                </form>
+                <script>
+                    var heroes = {{ heroes|tojson }};
+                    console.log("Heroes array:", heroes);  // Check the heroes data
 
-        function updateHeroData(select) {
-            console.log("Newly selected hero ID:", select.value); // Log the new selected value
+                    function updateHeroData(select) {
+                        console.log("Newly selected hero ID:", select.value); // Log the new selected value
 
-            var selectedHero = heroes.find(h => h.id ? h.id.toString() === select.value.toString() : false);
+                        var selectedHero = heroes.find(h => h.id ? h.id.toString() === select.value.toString() : false);
 
-            // Check if selectedHero is defined
-            if (selectedHero) {
-                document.getElementById('heroName').value = selectedHero.name;
-                document.getElementById('heroText').value = selectedHero.text;
-                document.getElementById('heroDesignation').value = selectedHero.designation;
+                        // Check if selectedHero is defined
+                        if (selectedHero) {
+                            document.getElementById('heroName').value = selectedHero.name;
+                            document.getElementById('heroText').value = selectedHero.text;
+                            document.getElementById('heroDesignation').value = selectedHero.designation;
 
-                // Debugging: Log the values being set
-                console.log("Selected Hero Name:", selectedHero.name);
-                console.log("Selected Hero Text:", selectedHero.text);
-                console.log("Selected Hero Designation:", selectedHero.designation);
-            } else {
-                console.log("No hero found with the selected ID");
-                console.log("Hero Select Value:", select.value); // Log the select value for analysis
-            }
-        }
+                            // Debugging: Log the values being set
+                            console.log("Selected Hero Name:", selectedHero.name);
+                            console.log("Selected Hero Text:", selectedHero.text);
+                            console.log("Selected Hero Designation:", selectedHero.designation);
+                        } else {
+                            console.log("No hero found with the selected ID");
+                            console.log("Hero Select Value:", select.value); // Log the select value for analysis
+                        }
+                    }
 
-        window.onload = function() {
-            var heroSelect = document.getElementById('heroSelect');
-            if (heroSelect && heroSelect.options.length > 0) {
-                console.log("Options:", Array.from(heroSelect.options).map(opt => opt.value)); // Log option values
-                updateHeroData(heroSelect);
-            }
-        };
-    </script>
-    </div>
-{% else %}
-<p>No heroes with placeholder personalities found.</p>
-{% endif %}
+                    window.onload = function() {
+                        var heroSelect = document.getElementById('heroSelect');
+                        if (heroSelect && heroSelect.options.length > 0) {
+                            console.log("Options:", Array.from(heroSelect.options).map(opt => opt.value)); // Log option values
+                            updateHeroData(heroSelect);
+                        }
+                    };
+                </script>
+                {% else %}
+                <p>No heroes with placeholder personalities found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
 </div>
 </body>
 </html>

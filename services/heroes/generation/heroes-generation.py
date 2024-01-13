@@ -23,6 +23,36 @@ chromadb_service_url = 'http://heroes-persistence:8082'
 personaList = []
 
 
+@app.route('/allStories', methods=['GET', 'POST'])
+def allStories():
+    origin = request.args.get('origin', 'all')
+    if request.method == 'POST':
+        origin = request.form.get('origin', 'all')
+
+    if origin not in ['all', 'official', 'generated']:
+        origin = 'all'
+
+    stories_endpoint = f'{chromadb_service_url}/getStories'
+    params = {'origin': origin} if origin != 'all' else {}
+    response = requests.get(stories_endpoint, params=params)
+
+    stories = []
+    if response.status_code == 200:
+        json_data = response.json()
+        stories_data = json_data.get('stories', {})
+        metadatas = stories_data.get('metadatas', [])
+        documents = stories_data.get('documents', [])
+
+        # Pair each metadata with its corresponding document
+        for meta, doc in zip(metadatas, documents):
+            meta['document'] = doc
+            stories.append(meta)
+    else:
+        print("Failed to retrieve stories")
+
+    return render_template('allStories.html', stories=stories, origin=origin)
+
+
 @app.route('/unfinishedHeroes')
 def showPlaceholderPersonalities():
     json_data = get_json_response(f'{chromadb_service_url}/getHeroes?personality=Placeholder', "Failed to retrieve "
@@ -79,40 +109,8 @@ def generatePersonality():
               "Sentences here)"
 
     current_app.logger.info(f"Generated prompt: {prompt}")
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {openai.api_key}"
-    }
-    current_app.logger.info(f"Sending Data to gpt-4")
-    payload = {
-        "model": "gpt-4-1106-preview",
-        "temperature": 0.8,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "max_tokens": 2000
-    }
-
-    try:
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        if response.status_code == 200:
-            response_json = response.json()
-            generated_personality = response_json['choices'][0]['message']['content'] if response_json.get(
-                'choices') else 'No content'
-            current_app.logger.info(f"Generated personality: {generated_personality}")
-        else:
-            error_message = f"Error from GPT API: Status Code {response.status_code}, Response: {response.text}"
-            current_app.logger.error(error_message)
-            generated_personality = f"Error generating personality. API response status: {response.status_code}"
-    except requests.exceptions.RequestException as e:
-        error_message = f"Request to GPT API failed: {e}"
-        current_app.logger.error(error_message)
-        generated_personality = f"Error generating personality. Exception: {e}"
-
+    generated_personality = generate_with_openai(prompt)
+    current_app.logger.info(f"Generated personality: {generated_personality}")
     flash(generated_personality)
     return render_template('generatePersonality.html', hero=hero_data, personality=generated_personality)
 
@@ -138,7 +136,7 @@ def updateHero():
 
 
 @app.route('/prepareStory', methods=['GET'])
-def createConversation():
+def prepareStory():
     json_data = get_json_response(f'{chromadb_service_url}/getHeroes', "Failed to retrieve heroes")
     if json_data:
         hero_metadatas = json_data.get('heroes', {}).get('metadatas', [])
@@ -151,7 +149,7 @@ def createConversation():
 
 
 @app.route('/generateStory', methods=['POST'])
-def sendConversation():
+def generateStory():
     Worldbuilding = get_story("The Land of Rathe")
     participatingCharacters = request.form['selectedHeroes'].split(',')
     region = request.form['selectedRegion']
@@ -161,7 +159,7 @@ def sendConversation():
     if check_valid_prompt(settingDetails) == 'No':
         return render_template("invalidStoryDetails.html")
 
-    character_query_response = query_interacting_heroes(participatingCharacters)
+    character_query_response = query_interacting_heroes(participatingCharacters, settingDetails, styles)
     region_query_response = query_region(region, settingDetails, styles)
 
     # Process queriedCharacterData to handle nested list structure
@@ -183,24 +181,25 @@ def sendConversation():
     prompt = f"I want you to write a story set in this world:\n{Worldbuilding}\n" \
              f"It is set in a region called {region}. Here is some additional information about {region}:\n" \
              f"{queriedRegionData}\n" \
-             f"The Characters for this story are:\n{', '.join(participatingCharacters)}\n" \
+             f"The Main Characters participating in this story are:\n{', '.join(participatingCharacters)}\n" \
              f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
              f"Here is something I definitely want for the story: {settingDetails}\n" \
+             f"Every Character I gave you as Main Character should be present." \
              f"The story should be written to be {styles}.\n" \
              f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
              f"<a title>\nDescription: <a description in one sentence>, " \
              f"Title and Description should be the last two lines of your messages."
 
     current_app.logger.info(f"Generated prompt: {prompt}")
-    generated_story = generate_story_with_openai(prompt)
+    generated_story = generate_with_openai(prompt)
     current_app.logger.info(f"Generated story: {generated_story}")
-    title, description = parse_title_and_description(generated_story)
+    title, description, cleaned_story = extract_title_and_description(generated_story)
     current_app.logger.info(f"Parsed title: {title}")
     current_app.logger.info(f"Parsed description: {description}")
-    current_app.logger.info(f"Generated story after parse: {generated_story}")
+    current_app.logger.info(f"Generated story after parse: {cleaned_story}")
 
     return render_template("generateStory.html",
-                           generated_story=generated_story,
+                           generated_story=cleaned_story,
                            title=title,
                            description=description,
                            participatingCharacters=participatingCharacters)
@@ -267,8 +266,9 @@ def get_story(title):
         return []
 
 
-def query_interacting_heroes(character_list):
-    query_text = "What are interactions between " + ", ".join(character_list)
+def query_interacting_heroes(character_list, setting, style):
+    query_text = "What are interactions between " + ", ".join(character_list) + " in regards to " + setting + \
+                 " in a " + style + " style?"
     n_results = len(character_list) + 5
     try:
         response = requests.post(
@@ -335,7 +335,7 @@ def check_valid_prompt(prompt):
         return f"Error generating story: {e}"
 
 
-def generate_story_with_openai(prompt):
+def generate_with_openai(prompt):
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {openai.api_key}"}
     payload = {
         "model": "gpt-4-1106-preview", "temperature": 0.8,
@@ -356,7 +356,7 @@ def generate_story_with_openai(prompt):
         return f"Error generating story: {e}"
 
 
-def parse_title_and_description(story_text):
+def extract_title_and_description(story_text):
     # Regular expression pattern to match the title and description
     pattern = r'\nTitle: (.+)\nDescription: (.+)$'
 
@@ -367,10 +367,14 @@ def parse_title_and_description(story_text):
     if match:
         title = match.group(1).strip()
         description = match.group(2).strip()
-        return title, description
+
+        # Remove the matched title and description from the story_text
+        modified_text = re.sub(pattern, '', story_text).strip()
+
+        return title, description, modified_text
     else:
         # If no match is found, return None or some default values
-        return None, None
+        return None, None, story_text
 
 
 def generate_uuid(name):
