@@ -210,12 +210,16 @@ def submitStory():
     generated_story = request.form['generated_story']
     title = request.form['title']
     description = request.form['description']
-    participatingCharacters = request.form.getlist('participatingCharacters')
+    specifiedCharacters = request.form.getlist('participatingCharacters')
     universe_rating = request.form['universeRating']
     user_rating = request.form['userRating']
 
+    new_heroes = find_new_heroes_in_story(generated_story, specifiedCharacters)
+    participatingCharacters = specifiedCharacters + list(new_heroes)
+
     # Generate a new UUID for the story
     story_id = generate_uuid(title)
+    current_app.logger.info(f"Sending story to database: {generated_story}")
 
     # Create the JSON payload for saving the story
     story_data = {
@@ -248,6 +252,28 @@ def submitStory():
     else:
         flash('Failed to save story. Please try again.')
         return redirect(url_for('prepareStory'))
+
+
+def find_new_heroes_in_story(story, existing_heroes):
+    all_heroes = [
+        "Arakni", "Azalea", "Benji", "Betsy", "Boltyn", "Bravo", "Brevant", "Briar",
+        "Chane", "Dash", "Data Doll", "Dorinthea", "Dromai", "Emperor", "Fai",
+        "Genis", "Ira", "Iyslander", "Kano", "Kassai", "Katsu", "Kavdaen", "Kayo",
+        "Levia", "Lexi", "Maxx", "Melody", "Oldhim", "Olympia", "Prism", "Rhinar", "Riptide",
+        "Shiyana", "Teklovossen", "Uzuri", "Valda", "Victor Goldmane", "Viserai", "Vynnset", "Yoji"
+    ]
+    # Convert existing heroes to lower case for case-insensitive comparison
+    existing_heroes = set(hero.lower() for hero in existing_heroes)
+
+    # Find all occurrences of hero names in the story
+    new_hero_list = set()
+    for hero in all_heroes:
+        if hero.lower() not in existing_heroes:
+            # Use regular expression to find the hero name in the story
+            if re.search(r'\b' + re.escape(hero) + r'\b', story, re.IGNORECASE):
+                new_hero_list.add(hero)
+
+    return new_hero_list
 
 
 def get_story(title):
@@ -357,6 +383,7 @@ def generate_with_openai(prompt):
 
 
 def extract_title_and_description(story_text):
+    current_app.logger.info(f"Extracting Title and Description from {story_text}")
     # Regular expression pattern to match the title and description
     pattern = r'\nTitle: (.+)\nDescription: (.+)$'
 
