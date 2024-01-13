@@ -109,40 +109,8 @@ def generatePersonality():
               "Sentences here)"
 
     current_app.logger.info(f"Generated prompt: {prompt}")
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {openai.api_key}"
-    }
-    current_app.logger.info(f"Sending Data to gpt-4")
-    payload = {
-        "model": "gpt-4-1106-preview",
-        "temperature": 0.8,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "max_tokens": 2000
-    }
-
-    try:
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        if response.status_code == 200:
-            response_json = response.json()
-            generated_personality = response_json['choices'][0]['message']['content'] if response_json.get(
-                'choices') else 'No content'
-            current_app.logger.info(f"Generated personality: {generated_personality}")
-        else:
-            error_message = f"Error from GPT API: Status Code {response.status_code}, Response: {response.text}"
-            current_app.logger.error(error_message)
-            generated_personality = f"Error generating personality. API response status: {response.status_code}"
-    except requests.exceptions.RequestException as e:
-        error_message = f"Request to GPT API failed: {e}"
-        current_app.logger.error(error_message)
-        generated_personality = f"Error generating personality. Exception: {e}"
-
+    generated_personality = generate_with_openai(prompt)
+    current_app.logger.info(f"Generated personality: {generated_personality}")
     flash(generated_personality)
     return render_template('generatePersonality.html', hero=hero_data, personality=generated_personality)
 
@@ -191,7 +159,7 @@ def generateStory():
     if check_valid_prompt(settingDetails) == 'No':
         return render_template("invalidStoryDetails.html")
 
-    character_query_response = query_interacting_heroes(participatingCharacters)
+    character_query_response = query_interacting_heroes(participatingCharacters, settingDetails, styles)
     region_query_response = query_region(region, settingDetails, styles)
 
     # Process queriedCharacterData to handle nested list structure
@@ -213,16 +181,17 @@ def generateStory():
     prompt = f"I want you to write a story set in this world:\n{Worldbuilding}\n" \
              f"It is set in a region called {region}. Here is some additional information about {region}:\n" \
              f"{queriedRegionData}\n" \
-             f"The Characters for this story are:\n{', '.join(participatingCharacters)}\n" \
+             f"The Main Characters participating in this story are:\n{', '.join(participatingCharacters)}\n" \
              f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
              f"Here is something I definitely want for the story: {settingDetails}\n" \
+             f"Every Character I gave you as Main Character should be present." \
              f"The story should be written to be {styles}.\n" \
              f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
              f"<a title>\nDescription: <a description in one sentence>, " \
              f"Title and Description should be the last two lines of your messages."
 
     current_app.logger.info(f"Generated prompt: {prompt}")
-    generated_story = generate_story_with_openai(prompt)
+    generated_story = generate_with_openai(prompt)
     current_app.logger.info(f"Generated story: {generated_story}")
     title, description, cleaned_story = extract_title_and_description(generated_story)
     current_app.logger.info(f"Parsed title: {title}")
@@ -297,8 +266,9 @@ def get_story(title):
         return []
 
 
-def query_interacting_heroes(character_list):
-    query_text = "What are interactions between " + ", ".join(character_list)
+def query_interacting_heroes(character_list, setting, style):
+    query_text = "What are interactions between " + ", ".join(character_list) + " in regards to " + setting + \
+                 " in a " + style + " style?"
     n_results = len(character_list) + 5
     try:
         response = requests.post(
@@ -365,7 +335,7 @@ def check_valid_prompt(prompt):
         return f"Error generating story: {e}"
 
 
-def generate_story_with_openai(prompt):
+def generate_with_openai(prompt):
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {openai.api_key}"}
     payload = {
         "model": "gpt-4-1106-preview", "temperature": 0.8,

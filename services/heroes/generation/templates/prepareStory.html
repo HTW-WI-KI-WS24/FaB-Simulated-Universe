@@ -2,44 +2,54 @@
 <html lang="en">
 <head>
     <title>Story Prepare Form</title>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+            crossorigin="anonymous"
+    />
     <script>
         function addHero() {
-            var dropdown = document.getElementById('heroesDropdown');
+            var dropdown = document.getElementById("heroesDropdown");
             var selectedHero = dropdown.options[dropdown.selectedIndex].value;
 
-            var heroDiv = document.createElement('div');
-            heroDiv.classList.add('hero-list-item');
+            var heroDiv = document.createElement("div");
+            heroDiv.classList.add("hero-list-item");
+            heroDiv.classList.add("mb-2");
             heroDiv.innerText = selectedHero;
 
-            var removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.innerText = 'Remove';
-            removeButton.onclick = function() {
+            var removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.innerText = "Remove";
+            removeButton.className = "btn btn-secondary shadow-lg mx-2";
+            removeButton.onclick = function () {
                 heroDiv.remove();
                 updateHiddenInputs();
             };
 
             heroDiv.appendChild(removeButton);
-            document.getElementById('selectedHeroes').appendChild(heroDiv);
+            document.getElementById("selectedHeroes").appendChild(heroDiv);
             updateHiddenInputs();
         }
 
         function addStyle() {
             var selectedStyle = document.getElementById("styleSelect").value;
-            var styleDiv = document.createElement('div');
-            styleDiv.classList.add('style-list-item');
+            var styleDiv = document.createElement("div");
+            styleDiv.classList.add("style-list-item");
+            styleDiv.classList.add("mb-3");
             styleDiv.innerText = selectedStyle;
 
-            var removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.innerText = 'Remove';
-            removeButton.onclick = function() {
+            var removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.innerText = "Remove";
+            removeButton.className = "btn btn-secondary shadow-lg mx-2";
+            removeButton.onclick = function () {
                 styleDiv.remove();
                 updateHiddenInputs();
             };
 
             styleDiv.appendChild(removeButton);
-            document.getElementById('selectedStyles').appendChild(styleDiv);
+            document.getElementById("selectedStyles").appendChild(styleDiv);
             updateHiddenInputs();
         }
 
@@ -48,13 +58,13 @@
             var selectedRegion = dropdown.options[dropdown.selectedIndex].value;
 
             // Clear any existing region selection
-            document.getElementById('selectedRegion').innerHTML = '';
+            document.getElementById("selectedRegion").innerHTML = "";
 
-            var regionDiv = document.createElement('div');
-            regionDiv.classList.add('region-list-item');
+            var regionDiv = document.createElement("div");
+            regionDiv.classList.add("region-list-item");
             regionDiv.innerText = selectedRegion;
 
-            document.getElementById('selectedRegion').appendChild(regionDiv);
+            document.getElementById("selectedRegion").appendChild(regionDiv);
             updateHiddenInputs();
         }
 
@@ -63,90 +73,243 @@
             var selectedRegion = dropdown.options[dropdown.selectedIndex].value;
 
             // Clear any existing region selection
-            document.getElementById('selectedRegion').innerHTML = '';
+            document.getElementById("selectedRegion").innerHTML = "";
 
-            var regionDiv = document.createElement('div');
-            regionDiv.classList.add('region-list-item');
+            var regionDiv = document.createElement("div");
+            regionDiv.classList.add("region-list-item");
             regionDiv.innerText = selectedRegion;
 
-            document.getElementById('selectedRegion').appendChild(regionDiv);
+            document.getElementById("selectedRegion").appendChild(regionDiv);
             updateHiddenInputs();
         }
 
         function updateHiddenInputs() {
-            var selectedHeroes = Array.from(document.getElementById('selectedHeroes').children)
-                .map(div => div.textContent.replace('Remove', '').trim());
-            document.getElementById('hiddenSelectedHeroes').value = selectedHeroes.join(',');
+            var selectedHeroes = Array.from(
+                document.getElementById("selectedHeroes").children
+            ).map((div) => div.textContent.replace("Remove", "").trim());
+            document.getElementById("hiddenSelectedHeroes").value =
+                selectedHeroes.join(",");
 
-            var selectedStyles = Array.from(document.getElementById('selectedStyles').children)
-                .map(div => div.textContent.replace('Remove', '').trim());
-            document.getElementById('hiddenSelectedStyles').value = selectedStyles.join(',');
+            var selectedStyles = Array.from(
+                document.getElementById("selectedStyles").children
+            ).map((div) => div.textContent.replace("Remove", "").trim());
+            document.getElementById("hiddenSelectedStyles").value =
+                selectedStyles.join(",");
 
-            document.getElementById('hiddenSelectedRegion').value = document.getElementById('selectedRegion').textContent.trim(); // Ensure this id matches the hidden input field
+            document.getElementById("hiddenSelectedRegion").value = document
+                .getElementById("selectedRegion")
+                .textContent.trim(); // Ensure this id matches the hidden input field
         }
 
-        document.addEventListener('DOMContentLoaded', (event) => {
+        document.addEventListener("DOMContentLoaded", (event) => {
             updateHiddenInputs();
         });
     </script>
 </head>
 <body>
-<form action="/generateStory" method="post">
-    <label for="heroesDropdown">Select the Heroes that should be in the story:</label><br>
-    <select id="heroesDropdown">
-        {% for name in hero_names %}
-        <option value="{{ name }}">{{ name }}</option>
-        {% endfor %}
-    </select>
-    <button type="button" onclick="addHero()">Add Hero</button><br><br>
+<header style="height: 5vh">
+    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand px-5" href="http://localhost:8080/">FaB Story Generator</a>
+        <ul class="navbar-nav mr-auto justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/scrapeWorld"
+                >Scrape World</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/scrapeHeroes"
+                >Scrape Heroes</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8080/scrapeStories"
+                >Scrape Stories</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="http://localhost:8081/prepareStory"
+                >Story Generator</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8081/allStories"
+                >All Stories</a
+                >
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8081/unfinishedHeroes"
+                >Personality Generator</a
+                >
+            </li>
+        </ul>
+    </nav>
+</header>
+<div
+        class="d-flex my-auto justify-content-center align-items-center"
+        style="
+        width: 100vw;
+        height: 95vh;
+        background-image: url(https://dhhim4ltzu1pj.cloudfront.net/media/images/toa_art_01.width-10000.format-webp.webp);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: bottom;
+      "
+>
+    <main role="main">
+        <div
+                class="card bg-dark text-white text-center"
+                style="
+            border-radius: 10%;
+            box-shadow: inset 2px 2px 1px 1px rgb(0, 0, 0, 0.2);
+            max-width: 80vw;
+            max-height: 80vh;
+            position: relative;
+            padding: 5% 10%;
+            min-width: 30vw;
+          "
+        >
+            <div
+                    class="card-body p-0 m-0"
+                    style="
+              overflow-y: auto;
+              scrollbar-width: none;
+              width: 100%;
+              height: 80%;
+            "
+            >
+                <form action="/generateStory" method="post">
+                    <label for="heroesDropdown"
+                    ><h4 class="mb-0">
+                        Select the Heroes that should be in the story:
+                    </h4></label
+                    ><br />
+                    <div class="input-group">
+                        <select
+                                id="heroesDropdown"
+                                class="form-control text-center mb-3 bg-dark text-white"
+                                style="width: 70%; margin: auto"
+                        >
+                            {% for name in hero_names %}
+                            <option value="{{ name }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-append">
+                            <button
+                                    type="button"
+                                    onclick="addHero()"
+                                    class="btn btn-secondary mb-3 shadow-lg border-white"
+                            >
+                                Add Hero
+                            </button>
+                        </div>
+                    </div>
 
-    <label>Selected Heroes:</label><br>
-    <div id="selectedHeroes">
-        <!-- Dynamically added heroes will go here -->
-    </div><br>
+                    <label>Selected Heroes:</label>
+                    <div id="selectedHeroes">
+                        <!-- Dynamically added heroes will go here -->
+                    </div>
 
-    <label for="styleSelect">The Style the story should be in (select one or more):</label><br>
-    <select id="styleSelect">
-        <option value="Action-Packed">Action-Packed</option>
-        <option value="Dark">Dark</option>
-        <option value="Fantastical">Fantastical</option>
-        <option value="Funny">Funny</option>
-        <option value="Realistic">Realistic</option>
-        <option value="Romantic">Romantic</option>
-    </select>
-    <button type="button" onclick="addStyle()">Add Style</button><br><br>
+                    <label for="styleSelect"
+                    ><h4 class="mb-0 mt-3">
+                        The Style the story should be in (select one or more):
+                    </h4></label
+                    >
+                    <div class="input-group">
+                        <select
+                                id="styleSelect"
+                                class="form-control text-center mb-3 bg-dark text-white"
+                                style="width: 70%; margin: auto"
+                        >
+                            <option value="Action-Packed">Action-Packed</option>
+                            <option value="Dark">Dark</option>
+                            <option value="Fantastical">Fantastical</option>
+                            <option value="Funny">Funny</option>
+                            <option value="Realistic">Realistic</option>
+                            <option value="Romantic">Romantic</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button
+                                    type="button"
+                                    onclick="addStyle()"
+                                    class="btn btn-secondary mb-3 shadow-lg border-white"
+                            >
+                                Add Style
+                            </button>
+                        </div>
+                    </div>
 
-    <label>Selected Styles:</label><br>
-    <div id="selectedStyles">
-        <!-- Dynamically added styles will go here -->
-    </div><br>
+                    <label>Selected Styles:</label>
+                    <div id="selectedStyles">
+                        <!-- Dynamically added styles will go here -->
+                    </div>
 
-    <label for="regionSelect">Select a Region where the story takes place:</label><br>
-    <select id="regionSelect" onchange="updateRegionSelection()">
-        <option value="Aria">Aria</option>
-        <option value="The Demonastery">The Demonastery</option>
-        <option value="Metrix">Metrix</option>
-        <option value="Misteria">Misteria</option>
-        <option value="The Pits">The Pits</option>
-        <option value="Savage Lands">Savage Lands</option>
-        <option value="Solana">Solana</option>
-        <option value="Volcor">Volcor</option>
-    </select><br><br>
+                    <label for="regionSelect"
+                    ><h4 class="mb-0 mt-3">
+                        Select a Region where the story takes place:
+                    </h4></label
+                    >
+                    <select
+                            id="regionSelect"
+                            onchange="updateRegionSelection()"
+                            class="form-control text-center mb-3 bg-dark text-white"
+                            style="width: 70%; margin: auto"
+                    >
+                        <option value="Aria" selected="selected">Aria</option>
+                        <option value="The Demonastery">The Demonastery</option>
+                        <option value="Metrix">Metrix</option>
+                        <option value="Misteria">Misteria</option>
+                        <option value="The Pits">The Pits</option>
+                        <option value="Savage Lands">Savage Lands</option>
+                        <option value="Solana">Solana</option>
+                        <option value="Volcor">Volcor</option>
+                    </select>
 
-    <label>Selected Region:</label><br>
-    <div id="selectedRegion">
-        <!-- Dynamically added region will go here -->
-    </div><br>
+                    <label for="settingDetails"
+                    ><h4 class="mb-0 mt-3">
+                        Something that should definitely be in the story:
+                    </h4></label
+                    >
+                    <input
+                            type="text"
+                            id="settingDetails"
+                            name="settingDetails"
+                            class="form-control bg-dark text-white mb-3"
+                    />
 
-    <label for="settingDetails">Something that should definitely be in the story:</label><br>
-    <input type="text" id="settingDetails" name="settingDetails"><br><br>
+                    <!-- Hidden inputs for selected heroes and styles -->
+                    <input
+                            type="hidden"
+                            name="selectedHeroes"
+                            id="hiddenSelectedHeroes"
+                            class="form-control bg-dark text-white mb-3"
+                    />
+                    <input
+                            type="hidden"
+                            name="selectedStyles"
+                            id="hiddenSelectedStyles"
+                            class="form-control bg-dark text-white mb-3"
+                    />
+                    <input
+                            type="hidden"
+                            name="selectedRegion"
+                            id="hiddenSelectedRegion"
+                            class="form-control bg-dark text-white mb-3"
+                    />
 
-    <!-- Hidden inputs for selected heroes and styles -->
-    <input type="hidden" name="selectedHeroes" id="hiddenSelectedHeroes">
-    <input type="hidden" name="selectedStyles" id="hiddenSelectedStyles">
-    <input type="hidden" name="selectedRegion" id="hiddenSelectedRegion">
-
-    <input type="submit" value="Create Story">
-</form>
+                    <button
+                            type="submit"
+                            method="post"
+                            class="btn btn-secondary shadow-lg"
+                    >
+                        Create Story
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
 </body>
 </html>
