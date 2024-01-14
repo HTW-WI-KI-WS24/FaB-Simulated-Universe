@@ -312,7 +312,7 @@ def query_interacting_heroes(character_list, setting, style):
         return None
 
 
-def query_region(region, setting, style):
+def query_region(region):
     query_text = "Give me some information about " + region + "."
     n_results = 10
 
