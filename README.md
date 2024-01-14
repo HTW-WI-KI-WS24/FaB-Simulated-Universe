@@ -17,7 +17,7 @@ Welcome to the Flesh and Blood Simulated Universe - a place where epic tales and
 ### Prerequisites
 
 Before you begin, ensure you have the following installed:
-- Docker
+- Docker/Docker Desktop
 - Docker Compose
 
 ### Environment Setup
@@ -45,10 +45,10 @@ This will set up all necessary services, including the backend, ChromaDB, and an
 
 After the containers are up and running, initialize the database:
 
-- Access the `heroes/importCollection/heroes` endpoint in your browser. This loads the data into the "heroes" collection in your ChromaDB (that's the one with Chromas default Embeddings).
-- If you wish to load the data with OpenAIs Embeddings as well, access the `openai/importCollection/heroes` endpoint.
+- Access the `localhost:8082/heroes/importCollection/heroes` endpoint in your browser. This loads the data into the "heroes" collection in your ChromaDB (that's the one with Chromas default Embeddings).
+- If you wish to load the data with OpenAIs Embeddings as well, access the `localhost:8082/openai/importCollection/heroes` endpoint.
 - If you want to import a different name_collection.json, or load it into a different created Collection, just use this syntax:
-- `<chroma_collection_name>/importCollection/<filename_before_collection.json>`
+- `localhost:8082/<chroma_collection_name>/importCollection/<filename_before_collection.json>`
 
 ### Using different Embeddings
 
