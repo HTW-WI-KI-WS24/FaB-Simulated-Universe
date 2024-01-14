@@ -10,7 +10,13 @@ chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
 # chroma_client.delete_collection(name="heroes")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
+#openAiCollection = chroma_client.get_or_create_collection(name="openai", embedding_functions=openai)
 # testCollection = chroma_client.get_or_create_collection(name="test", embedding_function=default_ef)
+collections = {
+    "heroes": fabCollection,
+    #"openai": openAiCollection
+    # "test": testCollection
+}
 app = Flask(__name__)
 
 
@@ -108,8 +114,8 @@ def getWorldData():
     return jsonify({'worldData': worldData})
 
 
-@app.route('/getInteractingHeroes', methods=['GET'])
-def getInteractingHeroes():
+@app.route('/<collectionName>/getInteractingHeroes', methods=['GET'])
+def getInteractingHeroes(collectionName):
     heroes = request.args.get('heroes')
     if not heroes:
         current_app.logger.info("No heroes provided")
@@ -119,8 +125,12 @@ def getInteractingHeroes():
     prompt = "Identify narratives where " + " and ".join(heroes_list) + " appear in the same context."
 
     try:
+        selected_collection = collections.get(collectionName)
+        if not selected_collection:
+            current_app.logger.error("Invalid collection name")
+            return jsonify({'error': 'Invalid collection name'}), 400
         # https://docs.trychroma.com/usage-guide#querying-a-collection
-        result = fabCollection.query(
+        result = selected_collection.query(
             query_texts=[prompt],
             n_results=3,
             # where={"metadata_field": "is_equal_to_this"},
@@ -139,8 +149,8 @@ def getInteractingHeroes():
         return jsonify({'error': error_message}), 500
 
 
-@app.route('/queryChromaDB', methods=['POST'])
-def query_chroma_db():
+@app.route('/<collectionName>/queryChromaDB', methods=['POST'])
+def query_chroma_db(collectionName):
     try:
         data = request.get_json()
         query_texts = data.get('query_texts', [])
@@ -167,8 +177,13 @@ def query_chroma_db():
 
         current_app.logger.info(f"Sending query to chroma with arguments: {query_args}")
 
-        result = fabCollection.query(**query_args)
+        # Select the collection based on the collectionName parameter
+        selected_collection = collections.get(collectionName)
+        if not selected_collection:
+            current_app.logger.error("Invalid collection name")
+            return jsonify({'message': 'Invalid collection name'}), 400
 
+        result = selected_collection.query(**query_args)
         current_app.logger.info(f"Query result: {result}")
 
         if result and result.get('documents'):
@@ -184,18 +199,23 @@ def query_chroma_db():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/updateHero', methods=['POST'])
-def updateHero():
+@app.route('/<collectionName>/updateHero', methods=['POST'])
+def updateHero(collectionName):
     data = request.get_json()
     # Normalize line endings in the personality text
     personality_clean = data['personality'].replace('\r\n', ' ')
 
-    fabCollection.update(
+    # Select the collection based on the collectionName parameter
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        return jsonify({'message': 'Invalid collection name'}), 400
+
+    selected_collection.update(
         ids=[data['id']],
         documents=[
             "The Hero's name is " + data['name'] + ". They have the following short description: " +
             data['text'] + ". Their Talent/Class is " + data['designation'] +
-            ". " + personality_clean  # Use the cleaned personality text here
+            ". " + personality_clean
         ],
         metadatas=[
             {
@@ -208,7 +228,6 @@ def updateHero():
         ]
     )
     return jsonify({'message': 'Hero updated successfully'}), 200
-
 
 @app.route('/deleteAllHeroes', methods=['DELETE'])
 def deleteAllHeroes():

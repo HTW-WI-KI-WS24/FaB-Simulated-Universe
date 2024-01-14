@@ -164,6 +164,8 @@ def generateStory():
     character_query_response = query_interacting_heroes(participatingCharacters, settingDetails, styles)
     region_query_response = query_region(region)
 
+    current_app.logger.info(f"Selected Region is now {region}")
+    current_app.logger.info(f"Region Query Response: {region_query_response}")
     # Process queriedCharacterData to handle nested list structure
     queriedCharacterData_list = character_query_response.get('documents', []) if character_query_response else []
     queriedCharacterData = ""
