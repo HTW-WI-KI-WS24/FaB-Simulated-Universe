@@ -66,7 +66,6 @@ If you want to use different Embeddings, please refer to [this Notebook by Chrom
 - [ ] Information Adding Feature
 - [ ] Allow User Editing of Ratings
 - [ ] Use [SelfQueryRetriever from LangChain](https://python.langchain.com/docs/integrations/retrievers/self_query/chroma_self_query) to query over the Ratings Metadatas Fields
-- [ ] Get Universe Rating for Generated Stories generated automatically
 
 ## Contributing
 
