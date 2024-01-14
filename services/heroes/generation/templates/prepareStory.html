@@ -96,10 +96,8 @@
             document.getElementById("hiddenSelectedStyles").value =
                 selectedStyles.join(",");
 
-            document.getElementById("hiddenSelectedRegion").value = document
-                .getElementById("selectedRegion")
-                .textContent.trim(); // Ensure this id matches the hidden input field
-        }
+            var selectedRegion = document.getElementById("regionSelect").value;
+            document.getElementById("hiddenSelectedRegion").value = selectedRegion;        }
 
         document.addEventListener("DOMContentLoaded", (event) => {
             updateHiddenInputs();
@@ -152,10 +150,9 @@
         style="
         width: 100vw;
         height: 95vh;
-        background-image: url(https://dhhim4ltzu1pj.cloudfront.net/media/images/toa_art_01.width-10000.format-webp.webp);
+        background-image: url(https://dhhim4ltzu1pj.cloudfront.net/media/images/Aria_Matte.width-10000.jpg);
         background-repeat: no-repeat;
         background-size: cover;
-        background-position: bottom;
       "
 >
     <main role="main">
@@ -266,8 +263,8 @@
                         <option value="Solana">Solana</option>
                         <option value="Volcor">Volcor</option>
                     </select>
-                    <div id="selectedRegion" style="display: none">
-                        <!-- Dynamically added region will go here -->
+                    <div id="selectedRegion">
+                        <!-- Dynamically added Region will go here -->
                     </div>
                     <label for="settingDetails"
                     ><h4 class="mb-0 mt-3">
