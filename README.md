@@ -50,6 +50,11 @@ After the containers are up and running, initialize the database:
 - If you want to import a different name_collection.json, or load it into a different created Collection, just use this syntax:
 - `<chroma_collection_name>/importCollection/<filename_before_collection.json>`
 
+### Using different Embeddings
+
+If you want to use different Embeddings, please refer to [this Notebook by Chroma](https://github.com/chroma-core/chroma/blob/main/examples/basic_functionality/alternative_embeddings.ipynb).
+
+
 ## Features
 
 - **Personality Generation**: Create unique hero profiles with rich backstories and attributes based on existing stories.
@@ -58,10 +63,10 @@ After the containers are up and running, initialize the database:
 
 ## To-Do Roadmap
 
-- [ ] Generation/Information Adding Feature
+- [ ] Information Adding Feature
 - [ ] Allow User Editing of Ratings
-- [ ] Use SelfQueryRetriever from LangChain to query over the Ratings Metadatas Fields
-- [ ] Get Universe Rating for Generated Stories automatically
+- [ ] Use [SelfQueryRetriever from LangChain](https://python.langchain.com/docs/integrations/retrievers/self_query/chroma_self_query) to query over the Ratings Metadatas Fields
+- [ ] Get Universe Rating for Generated Stories generated automatically
 
 ## Contributing
 
