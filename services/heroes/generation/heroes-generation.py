@@ -162,7 +162,7 @@ def generateStory():
         return render_template("invalidStoryDetails.html")
 
     character_query_response = query_interacting_heroes(participatingCharacters, settingDetails, styles)
-    region_query_response = query_region(region, settingDetails, styles)
+    region_query_response = query_region(region)
 
     # Process queriedCharacterData to handle nested list structure
     queriedCharacterData_list = character_query_response.get('documents', []) if character_query_response else []
@@ -186,7 +186,8 @@ def generateStory():
              f"The Main Characters participating in this story are:\n{', '.join(participatingCharacters)}\n" \
              f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
              f"Here is something I definitely want for the story: {settingDetails}\n" \
-             f"Every Character I gave you as Main Character should be present." \
+             f"Every Character from these should be a main character " \
+             f"in the story:\n {', '.join(participatingCharacters)}\n\n." \
              f"The story should be written to be {styles}.\n" \
              f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
              f"<a title>\nDescription: <a description in one sentence>, " \
@@ -312,7 +313,7 @@ def query_interacting_heroes(character_list, setting, style):
 
 
 def query_region(region, setting, style):
-    query_text = "Give me some information about " + region + " in regards to " + setting + " in a " + style + " Style."
+    query_text = "Give me some information about " + region + "."
     n_results = 10
 
     # Check for specific region names and adjust if necessary
