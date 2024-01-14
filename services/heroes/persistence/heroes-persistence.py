@@ -5,26 +5,44 @@ import chromadb
 from flask import Flask, jsonify, request, current_app, send_from_directory
 from chromadb.utils import embedding_functions
 import json
+import openai
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv('OPENAI_API_KEY')
+app_secret_key = os.getenv('APP_SECRET_KEY')
+openai.api_key = api_key
 
 chroma_client = chromadb.PersistentClient(path="/var/lib/chromadb")
 default_ef = embedding_functions.DefaultEmbeddingFunction()
+openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+    api_key=openai.api_key,
+    model_name="text-embedding-ada-002"
+)
 # chroma_client.delete_collection(name="heroes")
+# chroma_client.delete_collection(name="openai")
 fabCollection = chroma_client.get_or_create_collection(name="heroes", embedding_function=default_ef)
-#openAiCollection = chroma_client.get_or_create_collection(name="openai", embedding_functions=openai)
+openAiCollection = chroma_client.get_or_create_collection(name="openai", embedding_function=openai_ef)
 # testCollection = chroma_client.get_or_create_collection(name="test", embedding_function=default_ef)
 collections = {
     "heroes": fabCollection,
-    #"openai": openAiCollection
+    "openai": openAiCollection
     # "test": testCollection
 }
 app = Flask(__name__)
 
 
-@app.route('/createHero', methods=['POST'])
-def createPersona():
+@app.route('/<collectionName>/createHero', methods=['POST'])
+def createPersona(collectionName):
     data = request.get_json()
-    # Hinzufügen des Persona-Dokuments und seiner Embeddings zur ChromaDB-Collection
-    fabCollection.add(
+
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        current_app.logger.error("Invalid collection name")
+        return jsonify({'message': 'Invalid collection name'}), 400
+
+# Hinzufügen des Persona-Dokuments und seiner Embeddings zur ChromaDB-Collection
+    selected_collection.add(
         documents=[data['text']],
         metadatas=[{"name": data['name']}],
         ids=[data['ids']]
@@ -32,13 +50,18 @@ def createPersona():
     return jsonify({'message': 'Hero created successfully', 'heroData': data})
 
 
-@app.route('/saveStory', methods=['POST'])
-def saveStory():
+@app.route('/<collectionName>/saveStory', methods=['POST'])
+def saveStory(collectionName):
     data = request.get_json()  # Retrieve JSON payload from the request
     current_app.logger.info(f"Received story: {data} Saving...")
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        current_app.logger.error("Invalid collection name")
+        return jsonify({'message': 'Invalid collection name'}), 400
+
     try:
         # Assuming fabCollection.add is properly implemented to handle adding the story to the database
-        fabCollection.add(
+        selected_collection.add(
             documents=data['documents'],
             metadatas=data['metadatas'],
             ids=data['ids']
@@ -53,8 +76,8 @@ def saveStory():
 # To get all heroes: GET /getHeroes
 # To get a specific hero by name: GET /getHeroes?name=[hero_name]
 # To get heroes without generated personality: GET /getHeroes?personality=Placeholder
-@app.route('/getHeroes', methods=['GET'])
-def getHeroes():
+@app.route('/<collectionName>/getHeroes', methods=['GET'])
+def getHeroes(collectionName):
     name = request.args.get('name', default=None)
     personality = request.args.get('personality', default=None)
 
@@ -66,8 +89,13 @@ def getHeroes():
     else:
         query = {'kind': 'hero'}
 
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        current_app.logger.error("Invalid collection name")
+        return jsonify({'message': 'Invalid collection name'}), 400
+
     # Fetching heroes based on the constructed query
-    heroes = fabCollection.get(where=query)
+    heroes = selected_collection.get(where=query)
     return jsonify({'heroes': heroes})
 
 
@@ -76,8 +104,8 @@ def getHeroes():
 # To get all generated stories: GET /getStories?origin=generated
 # To get all stories with a specific hero: GET /getStories?hero=[hero_name]
 # To get a story by title: GET /getStories?title=[title]
-@app.route('/getStories', methods=['GET'])
-def getStories():
+@app.route('/<collectionName>/getStories', methods=['GET'])
+def getStories(collectionName):
     origin = request.args.get('origin', default=None)
     hero_name = request.args.get('hero', default=None)
     title = request.args.get('title', default=None)
@@ -92,15 +120,20 @@ def getStories():
     else:
         query = {'kind': 'story'}
 
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        current_app.logger.error("Invalid collection name")
+        return jsonify({'message': 'Invalid collection name'}), 400
+
     # Fetching stories based on the constructed query
-    stories = fabCollection.get(where=query)
+    stories = selected_collection.get(where=query)
     return jsonify({'stories': stories})
 
 
 # To get all world data: GET /getWorldData
 # To get world data for a specific region: GET /getWorldData?region=[region_name]
-@app.route('/getWorldData', methods=['GET'])
-def getWorldData():
+@app.route('/<collectionName>/getWorldData', methods=['GET'])
+def getWorldData(collectionName):
     region = request.args.get('region', default=None)
 
     # Choose the query based on parameters
@@ -109,8 +142,13 @@ def getWorldData():
     else:
         query = {'kind': 'regionData'}
 
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        current_app.logger.error("Invalid collection name")
+        return jsonify({'message': 'Invalid collection name'}), 400
+
     # Fetching world data based on the constructed query
-    worldData = fabCollection.get(where=query)
+    worldData = selected_collection.get(where=query)
     return jsonify({'worldData': worldData})
 
 
@@ -133,7 +171,7 @@ def getInteractingHeroes(collectionName):
         result = selected_collection.query(
             query_texts=[prompt],
             n_results=3,
-            # where={"metadata_field": "is_equal_to_this"},
+            where={"metadata_field": "is_equal_to_this"},
             # where_document={"$contains":"search_string"}
         )
         current_app.logger.info(f"Query sent to DB: {prompt}")
@@ -229,27 +267,63 @@ def updateHero(collectionName):
     )
     return jsonify({'message': 'Hero updated successfully'}), 200
 
-@app.route('/deleteAllHeroes', methods=['DELETE'])
-def deleteAllHeroes():
-    fabCollection.delete(where={"kind": "hero"})
+
+@app.route('/<collectionName>/updateStoryRating', methods=['POST'])
+def updateStoryRating(collectionName):
+    data = request.get_json()
+    updatedUserRating = data['updatedUserRating']
+    updatedUniverseRating = data['updatedUniverseRating']
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        return jsonify({'message': 'Invalid collection name'}), 400
+
+    selected_collection.update(
+        ids=[data['id']],
+        documents=[data['documents']],
+        metadatas=[
+            {
+
+            }
+        ]
+    )
+
+
+@app.route('/<collectionName>/deleteAllHeroes', methods=['DELETE'])
+def deleteAllHeroes(collectionName):
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        return jsonify({'message': 'Invalid collection name'}), 400
+
+    selected_collection.delete(where={"kind": "hero"})
     return jsonify({'message': 'heroes successfully deleted'})
 
 
-@app.route('/deleteHeroByName/<name>', methods=['DELETE'])
-def deleteHeroByName(name):
-    fabCollection.delete(where={"name": name})
+@app.route('/<collectionName>/deleteHeroByName/<name>', methods=['DELETE'])
+def deleteHeroByName(collectionName, name):
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        return jsonify({'message': 'Invalid collection name'}), 400
+
+    selected_collection.delete(where={"name": name})
     return jsonify({'message': 'hero successfully deleted'})
 
 
-@app.route('/deleteAllStories', methods=['DELETE'])
-def deleteAllStories():
-    fabCollection.delete(where={"kind": "story"})
+@app.route('/<collectionName>/deleteAllStories', methods=['DELETE'])
+def deleteAllStories(collectionName):
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        return jsonify({'message': 'Invalid collection name'}), 400
+
+    selected_collection.delete(where={"kind": "story"})
     return jsonify({'message': 'stories successfully deleted'})
 
 
-@app.route('/deleteAllWorldData', methods=['DELETE'])
-def deleteAllWorldData():
-    fabCollection.delete(where={"kind": "regionData"})
+@app.route('/<collectionName>/deleteAllWorldData', methods=['DELETE'])
+def deleteAllWorldData(collectionName):
+    selected_collection = collections.get(collectionName)
+    if not selected_collection:
+        return jsonify({'message': 'Invalid collection name'}), 400
+    selected_collection.delete(where={"kind": "regionData"})
     return jsonify({'message': 'World Data deleted successfully.'})
 
 
@@ -294,8 +368,8 @@ def saveCollection(name):
         return jsonify({'error': 'Failed to save collection data'}), 500
 
 
-@app.route('/importCollection/<name>', methods=['POST'])
-def loadCollection(name):
+@app.route('/<collectionName>/importCollection/<name>', methods=['POST'])
+def loadCollection(collectionName, name):
     try:
         # Set up the file path for loading
         file_name = f"{name}_collection.json"
@@ -315,8 +389,13 @@ def loadCollection(name):
         if not documents or not metadatas or not ids:
             raise ValueError("Missing documents, metadatas, or ids in the collection data")
 
+        selected_collection = collections.get(collectionName)
+        if not selected_collection:
+            current_app.logger.error("Invalid collection name")
+            return jsonify({'message': 'Invalid collection name'}), 400
+
         # Add the data to the collection
-        fabCollection.add(
+        selected_collection.add(
             documents=documents,
             metadatas=metadatas,
             ids=ids

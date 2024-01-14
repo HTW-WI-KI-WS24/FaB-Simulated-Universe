@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = app_secret_key
 
 # Global variables
-chromadb_service_url = 'http://heroes-persistence:8082'
+chromadb_service_url = 'http://heroes-persistence:8082/heroes'
 personaList = []
 cleaned_story = ""
 
@@ -120,7 +120,7 @@ def generatePersonality():
     return render_template('generatePersonality.html', hero=hero_data, personality=generated_personality)
 
 
-@app.route('/updateHero', methods=['POST'])
+@app.route('/submitHero', methods=['POST'])
 def updateHero():
     hero_data = {
         'id': request.form['heroId'],
@@ -191,9 +191,9 @@ def generateStory():
              f"{queriedRegionData}\n" \
              f"The Main Characters participating in this story are:\n{', '.join(participatingCharacters)}\n" \
              f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
-             f"Here is something I definitely want for the story: {settingDetails}\n" \
              f"Every Character from these should be a main character " \
              f"in the story:\n {', '.join(participatingCharacters)}\n\n." \
+             f"Here is something I definitely want for the story: {settingDetails}\n" \
              f"The story should be written to be {styles}.\n" \
              f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
              f"<a title>\nDescription: <a description in one sentence>, " \
@@ -309,7 +309,7 @@ def query_interacting_heroes(character_list, setting, style):
     try:
         response = requests.post(
             chromadb_service_url + '/queryChromaDB',
-            json={'query_texts': [query_text], 'n_results': n_results},
+            json={'query_texts': [query_text], 'n_results': n_results, 'universe_rating': {"gte": "7"}},
             headers={"Content-Type": "application/json"}
         )
         return response.json() if response.status_code == 200 else None
