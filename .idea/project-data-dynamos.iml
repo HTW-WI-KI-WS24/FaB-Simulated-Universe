@@ -23,8 +23,8 @@
   <component name="TemplatesService">
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/services/heroes/generation/templates" />
-        <option value="$MODULE_DIR$/services/heroes/creation/templates" />
+        <option value="$MODULE_DIR$/services/simulated-universe/generation/templates" />
+        <option value="$MODULE_DIR$/services/simulated-universe/creation/templates" />
       </list>
     </option>
   </component>
