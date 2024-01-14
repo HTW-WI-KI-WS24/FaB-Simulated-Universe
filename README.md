@@ -1,5 +1,12 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/cVeImKGm)
 
+### Team Members
+Name              -  Student Number
+```
+Max Herget        -  0580332
+Nicolas Marantos  -  0579813
+Leon Schüßler     -  0579906
+```
 
 # Hero and Story Generation App
 
