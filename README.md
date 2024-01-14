@@ -54,7 +54,7 @@ After the containers are up and running, initialize the database:
 - [ ] Generation/Information Adding Feature
 - [ ] Allow User Editing of Ratings
 - [ ] Use SelfQueryRetriever from LangChain to query over the Ratings Metadatas Fields
-- [ ] Integration with Additional APIs for Richer Content
+- [ ] Get Universe Rating for Generated Stories automatically
 
 ## Contributing
 
