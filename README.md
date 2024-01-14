@@ -8,9 +8,9 @@ Nicolas Marantos  -  0579813
 Leon Schüßler     -  0579906
 ```
 
-# Hero and Story Generation App
+# Flesh and Blood Simulated Universe
 
-Welcome to the Hero and Story Generation App - a place where epic tales and legendary heroes come to life!
+Welcome to the Flesh and Blood Simulated Universe - a place where epic tales and legendary heroes come to life!
 
 ## Getting Started
 
