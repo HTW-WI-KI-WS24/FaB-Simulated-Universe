@@ -235,7 +235,6 @@ def generateStory():
 
 @app.route('/submitStory', methods=['POST'])
 def submitStory():
-    generated_story = request.form['generated_story']
     title = request.form['title']
     description = request.form['description']
     specifiedCharacters = request.form.getlist('participatingCharacters')
@@ -247,7 +246,7 @@ def submitStory():
 
     # Generate a new UUID for the story
     story_id = generate_uuid(title)
-    current_app.logger.info(f"Sending story to database: {generated_story}")
+    current_app.logger.info(f"Sending story to database: {cleaned_story}")
 
     # Create the JSON payload for saving the story
     story_data = {
@@ -276,10 +275,10 @@ def submitStory():
     # Check if the story was saved successfully
     if save_story_response.status_code == 200:
         flash('Story saved successfully!')
-        return redirect(url_for('prepareStory'))
+        return redirect(url_for('allStories'))
     else:
         flash('Failed to save story. Please try again.')
-        return redirect(url_for('prepareStory'))
+        return redirect(url_for('allStories'))
 
 
 def find_new_heroes_in_story(story, existing_heroes):

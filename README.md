@@ -49,6 +49,7 @@ After the containers are up and running, initialize the database:
 ## To-Do Roadmap
 
 - [ ] Generation/Information Adding Feature
+- [ ] Allow User Editing of Ratings
 - [ ] Use SelfQueryRetriever from LangChain to query over the Ratings Metadatas Fields
 - [ ] Integration with Additional APIs for Richer Content
 
