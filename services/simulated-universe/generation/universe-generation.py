@@ -211,7 +211,8 @@ def generateStory():
              f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
              f"Every Character from these should be a main character " \
              f"in the story:\n {', '.join(participatingCharacters)}\n\n." \
-             f"Here is something I definitely want for the story: {settingDetails}\n" \
+             f"Here is something I definitely want for the story: {settingDetails}\nTry to keep continuity based on " \
+             f"the additional context I gave you." \
              f"The story should be written to be {styles}.\n" \
              f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
              f"<a title>\nDescription: <a description in one sentence>, " \
