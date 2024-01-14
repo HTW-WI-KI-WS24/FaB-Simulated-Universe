@@ -19,9 +19,31 @@ app = Flask(__name__)
 app.secret_key = app_secret_key
 
 # Global variables
-chromadb_service_url = 'http://heroes-persistence:8082'
+chromadb_service_url = 'http://heroes-persistence:8082/heroes'
 personaList = []
 cleaned_story = ""
+
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+
+@app.route('/submitQuestion', methods=['POST'])
+def submit_question():
+    question = request.form['question']
+    response = query_question(question)
+    if response:
+        prompt = f"I am going to give you some data and a question and want you to answer the question using " \
+                 f"ONLY the data I have provided you.\nHere is the data:\n{response}\n\n" \
+                 f"Using only this data as reference, now answer this question as accurate as possible, providing " \
+                 f"context from the data I provided you with if applicable:\n{question}\n" \
+                 f"Your response should only include the answer to the question I provided you with, nothing else."
+        # Send response to GPT-4 and get the answer
+        gpt_response = generate_with_openai(prompt)
+        return render_template('answer.html', answer=gpt_response)
+    else:
+        return render_template('error.html', error="There was an error processing your question.")
 
 
 @app.route('/allStories', methods=['GET', 'POST'])
@@ -116,7 +138,7 @@ def generatePersonality():
     return render_template('generatePersonality.html', hero=hero_data, personality=generated_personality)
 
 
-@app.route('/updateHero', methods=['POST'])
+@app.route('/submitHero', methods=['POST'])
 def updateHero():
     hero_data = {
         'id': request.form['heroId'],
@@ -164,6 +186,8 @@ def generateStory():
     character_query_response = query_interacting_heroes(participatingCharacters, settingDetails, styles)
     region_query_response = query_region(region)
 
+    current_app.logger.info(f"Selected Region is now {region}")
+    current_app.logger.info(f"Region Query Response: {region_query_response}")
     # Process queriedCharacterData to handle nested list structure
     queriedCharacterData_list = character_query_response.get('documents', []) if character_query_response else []
     queriedCharacterData = ""
@@ -185,9 +209,9 @@ def generateStory():
              f"{queriedRegionData}\n" \
              f"The Main Characters participating in this story are:\n{', '.join(participatingCharacters)}\n" \
              f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
-             f"Here is something I definitely want for the story: {settingDetails}\n" \
              f"Every Character from these should be a main character " \
              f"in the story:\n {', '.join(participatingCharacters)}\n\n." \
+             f"Here is something I definitely want for the story: {settingDetails}\n" \
              f"The story should be written to be {styles}.\n" \
              f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
              f"<a title>\nDescription: <a description in one sentence>, " \
@@ -211,7 +235,6 @@ def generateStory():
 
 @app.route('/submitStory', methods=['POST'])
 def submitStory():
-    generated_story = request.form['generated_story']
     title = request.form['title']
     description = request.form['description']
     specifiedCharacters = request.form.getlist('participatingCharacters')
@@ -223,7 +246,7 @@ def submitStory():
 
     # Generate a new UUID for the story
     story_id = generate_uuid(title)
-    current_app.logger.info(f"Sending story to database: {generated_story}")
+    current_app.logger.info(f"Sending story to database: {cleaned_story}")
 
     # Create the JSON payload for saving the story
     story_data = {
@@ -252,10 +275,10 @@ def submitStory():
     # Check if the story was saved successfully
     if save_story_response.status_code == 200:
         flash('Story saved successfully!')
-        return redirect(url_for('prepareStory'))
+        return redirect(url_for('allStories'))
     else:
         flash('Failed to save story. Please try again.')
-        return redirect(url_for('prepareStory'))
+        return redirect(url_for('allStories'))
 
 
 def find_new_heroes_in_story(story, existing_heroes):
@@ -296,6 +319,21 @@ def get_story(title):
         return []
 
 
+def query_question(question):
+    query_text = question
+    n_results = 5
+    try:
+        response = requests.post(
+            chromadb_service_url + '/queryChromaDB',
+            json={'query_texts': [query_text], 'n_results': n_results},
+            headers={"Content-Type": "application/json"}
+        )
+        return response.json()  if response.status_code == 200 else None
+    except Exception as e:
+        current_app.logger.error(f"Error querying character interactions: {e}")
+        return None
+
+
 def query_interacting_heroes(character_list, setting, style):
     query_text = "What are interactions between " + ", ".join(character_list) + " in regards to " + setting + \
                  " in a " + style + " style?"
@@ -303,7 +341,7 @@ def query_interacting_heroes(character_list, setting, style):
     try:
         response = requests.post(
             chromadb_service_url + '/queryChromaDB',
-            json={'query_texts': [query_text], 'n_results': n_results},
+            json={'query_texts': [query_text], 'n_results': n_results, 'universe_rating': {"gte": "7"}},
             headers={"Content-Type": "application/json"}
         )
         return response.json() if response.status_code == 200 else None

@@ -25,6 +25,7 @@
             removeButton.onclick = function () {
                 heroDiv.remove();
                 updateHiddenInputs();
+
             };
 
             heroDiv.appendChild(removeButton);
@@ -107,7 +108,7 @@
 <body>
 <header style="height: 5vh">
     <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand px-5" href="http://localhost:8080/">FaB Story Generator</a>
+        <a class="navbar-brand px-5" href="http://localhost:8080/">FaB Simulated Universe</a>
         <ul class="navbar-nav mr-auto justify-content-center">
             <li class="nav-item">
                 <a class="nav-link" href="http://localhost:8080/">Home</a>
@@ -142,6 +143,9 @@
                 >Personality Generator</a
                 >
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8081/faq">FAQ</a>
+            </li>
         </ul>
     </nav>
 </header>
@@ -150,9 +154,11 @@
         style="
         width: 100vw;
         height: 95vh;
-        background-image: url(https://dhhim4ltzu1pj.cloudfront.net/media/images/Aria_Matte.width-10000.jpg);
+        background-image: url(https://dhhim4ltzu1pj.cloudfront.net/media/images/toa_art_01.width-10000.format-webp.webp);
         background-repeat: no-repeat;
         background-size: cover;
+        background-position: bottom;
+        background-attachment: fixed;
       "
 >
     <main role="main">

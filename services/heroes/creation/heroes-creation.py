@@ -2,13 +2,11 @@ from urllib.parse import urljoin
 
 import requests
 from flask import Flask, render_template, request, flash, current_app
-from openai import OpenAI
 
 import update_heroes
 import update_stories
 import update_world
 
-client = OpenAI(api_key='insertAPIKeyHere')
 base_url = "https://fabtcg.com/"
 stories_path = "stories"
 stories_url = urljoin(base_url, stories_path)
@@ -23,7 +21,7 @@ persona_introduction = ""
 persona_writing = ""
 name = ""
 messages = []
-chromadb_service_url = 'http://heroes-persistence:8082'
+chromadb_service_url = 'http://heroes-persistence:8082/heroes'
 
 
 @app.route("/")
