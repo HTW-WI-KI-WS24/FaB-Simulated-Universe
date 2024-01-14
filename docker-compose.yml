@@ -2,9 +2,9 @@ version: "3"
 
 services:
 
-  heroes-creation:
+  universe-creation:
     build:
-      context: services/heroes/creation
+      context: services/simulated-universe/creation
     ports:
       - "8080:8080"
     volumes:
@@ -16,9 +16,9 @@ services:
     env_file:
       - .env
 
-  heroes-generation:
+  universe-generation:
     build:
-      context: services/heroes/generation
+      context: services/simulated-universe/generation
     ports:
       - "8081:8081"
     networks:
@@ -28,9 +28,9 @@ services:
     env_file:
       - .env
 
-  heroes-persistence:
+  universe-persistence:
     build:
-      context: services/heroes/persistence
+      context: services/simulated-universe/persistence
     ports:
       - "8082:8082"
     volumes:

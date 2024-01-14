@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "heroes-persistence.py"]
+CMD ["python", "universe-persistence.py"]

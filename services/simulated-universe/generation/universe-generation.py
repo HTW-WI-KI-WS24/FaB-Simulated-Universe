@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = app_secret_key
 
 # Global variables
-chromadb_service_url = 'http://heroes-persistence:8082/heroes'
+chromadb_service_url = 'http://universe-persistence:8082/heroes'
 personaList = []
 cleaned_story = ""
 

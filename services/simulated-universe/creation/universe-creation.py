@@ -21,7 +21,7 @@ persona_introduction = ""
 persona_writing = ""
 name = ""
 messages = []
-chromadb_service_url = 'http://heroes-persistence:8082/heroes'
+chromadb_service_url = 'http://universe-persistence:8082/heroes'
 
 
 @app.route("/")

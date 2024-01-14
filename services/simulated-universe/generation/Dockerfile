@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "heroes-generation.py"]
+CMD ["python", "universe-generation.py"]
