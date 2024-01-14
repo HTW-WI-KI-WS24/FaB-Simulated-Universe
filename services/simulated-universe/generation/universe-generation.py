@@ -22,7 +22,8 @@ app.secret_key = app_secret_key
 chromadb_service_url = 'http://universe-persistence:8082/heroes'
 personaList = []
 cleaned_story = ""
-
+settingDetails = ""
+styles = ""
 
 @app.route('/askQuestions')
 def faq():
@@ -175,6 +176,8 @@ def prepareStory():
 @app.route('/generateStory', methods=['POST'])
 def generateStory():
     global cleaned_story
+    global settingDetails
+    global styles
     Worldbuilding = get_story("The Land of Rathe")
     participatingCharacters = request.form['selectedHeroes'].split(',')
     region = request.form['selectedRegion']
@@ -248,7 +251,23 @@ def submitStory():
 
     # Generate a new UUID for the story
     story_id = generate_uuid(title)
-    current_app.logger.info(f"Sending story to database: {cleaned_story}")
+    current_app.logger.info(f"Preparing story for database: {cleaned_story}")
+
+    queriedUniverseRatingContext = query_universe_rating(participatingCharacters, settingDetails, styles)
+
+    current_app.logger.info(f"Getting Universe Rating from GPT-4 API...")
+    prompt = f"I am going to give you several official stories and characters as context. " \
+             f"Then, I will give you a generated story " \
+             f"That I want you to rate in terms of how well it fits with the theme and universe of the official " \
+             f"stories. First, here are some official stories and characters as context:\n" \
+             f"{queriedUniverseRatingContext}\n" \
+             f"Now, here is the story I want you to rate:\n" \
+             f"{cleaned_story}\n" \
+             f"It is imperative that your response consists only of a number rating from 1-10, " \
+             f"and nothing else. 10 is as close as it gets to the style of the official stories " \
+             f"and characters. 1 means it is not at all close."
+    generated_universe_rating = generate_with_openai(prompt)
+    current_app.logger.info(f"Generated Universe Rating from GPT-4: {generated_universe_rating}")
 
     # Create the JSON payload for saving the story
     story_data = {
@@ -257,7 +276,7 @@ def submitStory():
             'kind': 'story',
             'title': title,
             'description': description,
-            'universeRating': universe_rating,
+            'universeRating': generated_universe_rating,
             'userRating': user_rating,
             **{character.lower(): character for character in participatingCharacters},
             'origin': 'generated'
@@ -265,7 +284,8 @@ def submitStory():
         'ids': [story_id]
     }
 
-    current_app.logger.info(f"Story approved with Universe Rating: {universe_rating} and User Rating: {user_rating}")
+    current_app.logger.info(f"Story approved with Generated Universe Rating: {generated_universe_rating} "
+                            f"and User Rating: {user_rating}")
     current_app.logger.info(f"Sending data to persistence service: {story_data}")
 
     # Send the story data to the /saveStory endpoint
@@ -321,6 +341,30 @@ def get_story(title):
         return []
 
 
+def query_universe_rating(character_list, setting, style):
+    query_text = "What are interactions between " + ", ".join(character_list) + " in regards to " + setting + \
+                 " in a " + style + " style?"
+    n_results = len(character_list) + 5
+    try:
+        response = requests.post(
+            chromadb_service_url + '/queryChromaDB',
+            json={'query_texts': [query_text],
+                  'n_results': n_results,
+                  'where': {
+                '$or': [
+                    {'kind': 'hero'},
+                    {'origin': 'official'}
+                    ]
+                    },
+                },
+            headers={"Content-Type": "application/json"}
+        )
+        return response.json() if response.status_code == 200 else None
+    except Exception as e:
+        current_app.logger.error(f"Error querying character interactions: {e}")
+        return None
+
+
 def query_question(question):
     query_text = question
     n_results = 5
@@ -343,7 +387,7 @@ def query_interacting_heroes(character_list, setting, style):
     try:
         response = requests.post(
             chromadb_service_url + '/queryChromaDB',
-            json={'query_texts': [query_text], 'n_results': n_results, 'universe_rating': {"gte": "7"}},
+            json={'query_texts': [query_text], 'n_results': n_results},
             headers={"Content-Type": "application/json"}
         )
         return response.json() if response.status_code == 200 else None
