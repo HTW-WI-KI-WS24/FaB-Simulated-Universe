@@ -38,7 +38,8 @@ def submit_question():
                  f"ONLY the data I have provided you.\nHere is the data:\n{response}\n\n" \
                  f"Using only this data as reference, now answer this question as accurate as possible, providing " \
                  f"context from the data I provided you with if applicable:\n{question}\n" \
-                 f"Your response should only include the answer to the question I provided you with, nothing else."
+                 f"Your response should only include the answer to the question I provided you with, nothing else." \
+                 f"Additionally, respond in-universe, so don't mention things like 'The provided data' or 'the data'." \
         # Send response to GPT-4 and get the answer
         gpt_response = generate_with_openai(prompt)
         return render_template('answer.html', answer=gpt_response)
