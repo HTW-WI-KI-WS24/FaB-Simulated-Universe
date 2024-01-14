@@ -24,6 +24,10 @@ personaList = []
 cleaned_story = ""
 
 
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
 @app.route('/allStories', methods=['GET', 'POST'])
 def allStories():
     origin = request.args.get('origin', 'all')
