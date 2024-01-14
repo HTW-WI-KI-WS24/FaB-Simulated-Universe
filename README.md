@@ -32,19 +32,22 @@ Run the following command to build and start the Docker containers:
 docker-compose up --build -d
 ```
 
-This will set up all necessary services, including the backend server, database, and any other required components.
+This will set up all necessary services, including the backend, ChromaDB, and any other required components.
 
 ### Initialize Database
 
 After the containers are up and running, initialize the database:
 
-- Access the `heroes/importCollection/<heroes>` endpoint in your browser. This loads the data 
+- Access the `heroes/importCollection/heroes` endpoint in your browser. This loads the data into the "heroes" collection in your ChromaDB (that's the one with Chromas default Embeddings).
+- If you wish to load the data with OpenAIs Embeddings as well, access the `openai/importCollection/heroes` endpoint.
+- If you want to import a different name_collection.json, or load it into a different created Collection, just use this syntax:
+- `<chroma_collection_name>/importCollection/<filename_before_collection.json>`
 
 ## Features
 
-- **Hero Generation**: Create unique hero profiles with rich backstories and attributes.
-- **Story Crafting**: Generate captivating stories involving the heroes.
-- **Persistent Storage**: Save and manage your heroes and stories in a robust database.
+- **Personality Generation**: Create unique hero profiles with rich backstories and attributes based on existing stories.
+- **Story Generation**: Generate captivating stories involving the heroes and existing World Data.
+- **Question Asking**: Ask Questions about the current State of the Universe.
 
 ## To-Do Roadmap
 
