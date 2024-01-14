@@ -28,6 +28,24 @@ cleaned_story = ""
 def faq():
     return render_template('faq.html')
 
+
+@app.route('/submitQuestion', methods=['POST'])
+def submit_question():
+    question = request.form['question']
+    response = query_question(question)
+    if response:
+        prompt = f"I am going to give you some data and a question and want you to answer the question using " \
+                 f"ONLY the data I have provided you.\nHere is the data:\n{response}\n\n" \
+                 f"Using only this data as reference, now answer this question as accurate as possible, providing " \
+                 f"context from the data I provided you with if applicable:\n{question}\n" \
+                 f"Your response should only include the answer to the question I provided you with, nothing else."
+        # Send response to GPT-4 and get the answer
+        gpt_response = generate_with_openai(prompt)
+        return render_template('answer.html', answer=gpt_response)
+    else:
+        return render_template('error.html', error="There was an error processing your question.")
+
+
 @app.route('/allStories', methods=['GET', 'POST'])
 def allStories():
     origin = request.args.get('origin', 'all')
@@ -300,6 +318,21 @@ def get_story(title):
     else:
         print("Failed to retrieve story or story not found")
         return []
+
+
+def query_question(question):
+    query_text = question
+    n_results = 5
+    try:
+        response = requests.post(
+            chromadb_service_url + '/queryChromaDB',
+            json={'query_texts': [query_text], 'n_results': n_results},
+            headers={"Content-Type": "application/json"}
+        )
+        return response.json()  if response.status_code == 200 else None
+    except Exception as e:
+        current_app.logger.error(f"Error querying character interactions: {e}")
+        return None
 
 
 def query_interacting_heroes(character_list, setting, style):

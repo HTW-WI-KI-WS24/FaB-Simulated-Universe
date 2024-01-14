@@ -368,11 +368,11 @@ def saveCollection(name):
         return jsonify({'error': 'Failed to save collection data'}), 500
 
 
-@app.route('/<collectionName>/importCollection/<name>', methods=['POST'])
-def loadCollection(collectionName, name):
+@app.route('/<collectionName>/importCollection/<filename>', methods=['POST'])
+def loadCollection(collectionName, filename):
     try:
         # Set up the file path for loading
-        file_name = f"{name}_collection.json"
+        file_name = f"{filename}_collection.json"
         collections_folder = os.path.join(os.path.dirname(__file__), 'collections')
         file_path = os.path.join(collections_folder, file_name)
 

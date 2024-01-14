@@ -38,8 +38,7 @@ This will set up all necessary services, including the backend server, database,
 
 After the containers are up and running, initialize the database:
 
-- Access the `/importCollection/<collection_name>` endpoint in your browser.
-- Replace `<collection_name>` with the name of your collection to load initial data.
+- Access the `heroes/importCollection/<heroes>` endpoint in your browser. This loads the data 
 
 ## Features
 
@@ -49,8 +48,8 @@ After the containers are up and running, initialize the database:
 
 ## To-Do Roadmap
 
-- [ ] Frontend Styling Enhancements
 - [ ] Generation/Information Adding Feature
+- [ ] Use SelfQueryRetriever from LangChain to query over the Ratings Metadatas Fields
 - [ ] Integration with Additional APIs for Richer Content
 
 ## Contributing
