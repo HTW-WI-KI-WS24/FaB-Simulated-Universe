@@ -24,9 +24,9 @@ personaList = []
 cleaned_story = ""
 
 
-@app.route('/faq')
+@app.route('/askQuestions')
 def faq():
-    return render_template('faq.html')
+    return render_template('askQuestions.html')
 
 
 @app.route('/submitQuestion', methods=['POST'])

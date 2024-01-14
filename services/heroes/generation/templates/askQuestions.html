@@ -46,7 +46,7 @@
                 <a class="nav-link" href="http://localhost:8081/unfinishedHeroes">Personality Generator</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="http://localhost:8081/faq">FAQ</a>
+                <a class="nav-link active" href="http://localhost:8081/askQuestions">Wise Sage</a>
             </li>
         </ul>
     </nav>
@@ -82,22 +82,24 @@
             "
             >
                 <form action="/submitQuestion" method="post">
-                    <label for="question"
-                    ><h4 class="mb-0 mt-3">
-                        Ask any Question about the Flesh & Blood Universe:
-                    </h4></label
-                    >
+                    <label for="question">
+                        <div class="text-container" style="max-width: 600px; margin: auto; padding: 20px; text-align: center;">
+                            <h4 class="mb-0 mt-3">
+                                Welcome, traveler, to the portal of the Wise Sage, the all-knowing entity of the cosmos.
+                                Here, your curiosities about the universe are met with enlightenment.
+                                Ask, and be awed by the power of cosmic knowledge at your fingertips.
+                            </h4>
+                        </div>
+                    </label>
                     <input
                             type="text"
                             id="question"
                             name="question"
-                            class="form-control bg-dark text-white mb-3 custom-width"
-                    />
+                            class="form-control bg-dark text-white mb-3 custom-width"/>
                     <button
                             type="submit"
                             method="post"
-                            class="btn btn-secondary shadow-lg"
-                    >
+                            class="btn btn-secondary shadow-lg">
                         Create Answer
                     </button>
                 </form>
