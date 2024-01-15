@@ -212,7 +212,8 @@ def generateStory():
              f"It is set in a region called {region}. Here is some additional information about {region}:\n" \
              f"{queriedRegionData}\n" \
              f"The Main Characters participating in this story are:\n{', '.join(participatingCharacters)}\n" \
-             f"Here is additional context for you about the characters: {queriedCharacterData}\n\n" \
+             f"Here is additional context for you about the characters and some things " \
+             f"they have already experienced: {queriedCharacterData}\n\n" \
              f"Every Character from these should be a main character " \
              f"in the story:\n {', '.join(participatingCharacters)}\n\n." \
              f"Here is something I definitely want for the story: {settingDetails}\nTry to keep continuity based on " \
