@@ -64,6 +64,7 @@ If you want to use different Embeddings, please refer to [this Notebook by Chrom
 ## To-Do Roadmap
 
 - [ ] Information Adding Feature
+- [ ] Hero Chatbot for Consultation sessions: Where they talk and think about what is currently happening, what to do next, which then gets saved as special object to ChromaDB.
 - [ ] Allow User Editing of Ratings
 - [ ] Use [SelfQueryRetriever from LangChain](https://python.langchain.com/docs/integrations/retrievers/self_query/chroma_self_query) to query over the Ratings Metadatas Fields
 
