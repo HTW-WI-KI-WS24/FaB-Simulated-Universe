@@ -86,7 +86,9 @@
               height: 80%;
             "
             >
-                <h1>Generated Story</h1>
+                <h2>Generated Story</h2>
+                {% if title %}
+                <h1>{{ title }}</h1>
                 {% if generated_story %}
                 <p>{{ generated_story|safe }}</p>
                 <form action="/submitStory" method="post">
@@ -122,19 +124,18 @@
                             required
                     />
 
-                    <label for="universeRating"
-                    >How well do you think this story fits the overall theme and
-                        universe of the World? (1-10):</label
-                    >
-                    <input
-                            class="form-control bg-dark text-white mb-3 w-25 d-block mx-auto"
-                            type="number"
-                            id="universeRating"
-                            name="universeRating"
-                            min="1"
-                            max="10"
-                            required
-                    />
+<!--                    <label for="universeRating"-->
+<!--                    >How well do you think this story fits the overall theme and-->
+<!--                        universe of the World? (1-10):</label-->
+<!--                    >-->
+<!--                    <input-->
+<!--                            class="form-control bg-dark text-white mb-3 w-25 d-block mx-auto"-->
+<!--                            type="hidden"-->
+<!--                            id="universeRating"-->
+<!--                            name="universeRating"-->
+<!--                            min="1"-->
+<!--                            max="10"-->
+<!--                    />-->
 
                     <button
                             type="submit"

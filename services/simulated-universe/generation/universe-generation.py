@@ -243,7 +243,7 @@ def submitStory():
     title = request.form['title']
     description = request.form['description']
     specifiedCharacters = request.form.getlist('participatingCharacters')
-    universe_rating = request.form['universeRating']
+    # universe_rating = request.form['universeRating']
     user_rating = request.form['userRating']
 
     new_heroes = find_new_heroes_in_story(cleaned_story, specifiedCharacters)
