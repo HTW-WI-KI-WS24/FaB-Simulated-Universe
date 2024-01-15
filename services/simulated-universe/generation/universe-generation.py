@@ -40,7 +40,8 @@ def submit_question():
                  f"Using only this data as reference, now answer this question as accurate as possible, providing " \
                  f"context from the data I provided you with if applicable:\n{question}\n" \
                  f"Your response should only include the answer to the question I provided you with, nothing else." \
-                 f"Additionally, respond in-universe, so don't mention things like 'The provided data' or 'the data'." \
+                 f"Additionally, respond in-universe, so don't mention things like 'The provided data' or 'the data'," \
+                 f"but do tell from which Story you are quoting if you quote anything." \
         # Send response to GPT-4 and get the answer
         gpt_response = generate_with_openai(prompt)
         return render_template('answer.html', answer=gpt_response)
@@ -213,11 +214,12 @@ def generateStory():
              f"{queriedRegionData}\n" \
              f"The Main Characters participating in this story are:\n{', '.join(participatingCharacters)}\n" \
              f"Here is additional context for you about the characters and some things " \
-             f"they have already experienced: {queriedCharacterData}\n\n" \
+             f"they have already experienced so you can build a new story based on this: {queriedCharacterData}\n\n" \
              f"Every Character from these should be a main character " \
              f"in the story:\n {', '.join(participatingCharacters)}\n\n." \
              f"Here is something I definitely want for the story: {settingDetails}\nTry to keep continuity based on " \
-             f"the additional context I gave you." \
+             f"the additional context I gave you, by referencing experiences the characters have already had. " \
+             f"However, I want a new story, so don't just copy an old one." \
              f"The story should be written to be {styles}.\n" \
              f"Write about 1000-1500 words. Your message should be in this format: \n <your story> \nTitle: " \
              f"<a title>\nDescription: <a description in one sentence>, " \
@@ -368,7 +370,7 @@ def query_universe_rating(character_list, setting, style):
 
 def query_question(question):
     query_text = question
-    n_results = 5
+    n_results = 10
     try:
         response = requests.post(
             chromadb_service_url + '/queryChromaDB',
@@ -377,7 +379,7 @@ def query_question(question):
         )
         return response.json()  if response.status_code == 200 else None
     except Exception as e:
-        current_app.logger.error(f"Error querying character interactions: {e}")
+        current_app.logger.error(f"Error querying question: {e}")
         return None
 
 

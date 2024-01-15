@@ -89,6 +89,7 @@
                 <h2>Generated Story</h2>
                 {% if title %}
                 <h1>{{ title }}</h1>
+                {% endif %}
                 {% if generated_story %}
                 <p>{{ generated_story|safe }}</p>
                 <form action="/submitStory" method="post">
